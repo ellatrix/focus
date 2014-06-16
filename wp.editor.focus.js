@@ -174,7 +174,7 @@
 			windowHeight = $window.height();
 
 			// Maybe adjust the top bar.
-			if ( ( ! fixedTop || eventType === 'resize' ) &&
+			if ( editorHeight > 300 && ( ! fixedTop || eventType === 'resize' ) &&
 					( windowPos >= ( topPos - adminBarHeight ) &&
 					windowPos <= ( topPos - adminBarHeight + editorHeight ) ) ) {
 				fixedTop = true;

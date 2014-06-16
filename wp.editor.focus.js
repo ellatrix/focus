@@ -61,8 +61,6 @@
 
 			if ( hiddenHeight === textEditorHeight ) {
 				return;
-			} else if ( hiddenHeight < windowHeight ) {
-				hiddenHeight = windowHeight;
 			}
 
 			$textEditor.height( hiddenHeight );
@@ -86,7 +84,7 @@
 			editor.theme.resizeTo = function() {};
 
 			// Set the minimum height to the initial viewport height.
-			editor.settings.autoresize_min_height = windowHeight;
+			editor.settings.autoresize_min_height = 300;
 
 			// Get the necessary UI elements.
 			statusBarHeight = $( '#wp-content-wrap .mce-statusbar:visible' ).outerHeight();

@@ -242,6 +242,7 @@
 		textEditorResize();
 
 		fadeOutSurroundings = function( event ) {
+			return; // Disabled for now
 			if ( ! event ) {
 				$postDivRich.off( '.hoverIntent' );
 			}
@@ -250,6 +251,7 @@
 		};
 
 		fadeInSurroundings = function( event ) {
+			return; // Disabled for now
 			var panels = $( '.mce-popover, .mce-menu' );
 
 			if ( ! event ) {

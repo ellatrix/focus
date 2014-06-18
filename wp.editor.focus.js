@@ -7,6 +7,9 @@
 
 	'use strict';
 
+	window.wp = wp || {};
+	wp.editor = wp.editor || {};
+
 	$( function() {
 
 		var $window = $( window ),
@@ -25,8 +28,7 @@
 			statusBarHeight = 0,
 			windowHeight = $window.height(),
 			fixedTop = false,
-			fixedBottom = false,
-			fadeOutSurroundings, fadeInSurroundings, autoFadeSurroundings;
+			fixedBottom = false;
 
 		// Disable resizing by WordPress.
 		$bottom.off();
@@ -42,7 +44,7 @@
 			'display': 'none'
 		} );
 
-		// Recalulate the text editor height.
+		// Recalculate the text editor height.
 		$textEditor.on( 'focus input propertychange', function() {
 
 			textEditorResize();
@@ -241,8 +243,11 @@
 
 		textEditorResize();
 
-		fadeOutSurroundings = function( event ) {
-			return; // Disabled for now
+		wp.editor.fadeOutSurroundings = function( event ) {
+			if ( ! wp.editor.enableFadeSurroundings ) {
+				return;
+			}
+
 			if ( ! event ) {
 				$postDivRich.off( '.hoverIntent' );
 			}
@@ -250,12 +255,15 @@
 			$toFade.fadeTo( 'slow' , 0.1 );
 		};
 
-		fadeInSurroundings = function( event ) {
-			return; // Disabled for now
+		wp.editor.fadeInSurroundings = function( event ) {
+			if ( ! wp.editor.enableFadeSurroundings ) {
+				return;
+			}
+
 			var panels = $( '.mce-popover, .mce-menu' );
 
 			if ( ! event ) {
-				autoFadeSurroundings();
+				this.autoFadeSurroundings();
 			}
 
 			if ( ! panels.length || ( panels.length && ! panels.is( ':visible' ) ) ) {
@@ -263,19 +271,15 @@
 			}
 		};
 
-		autoFadeSurroundings = function() {
+		wp.editor.autoFadeSurroundings = function() {
 			$postDivRich.hoverIntent( {
-				over: fadeOutSurroundings,
-				out: fadeInSurroundings,
+				over: this.fadeOutSurroundings,
+				out: this.fadeInSurroundings,
 				timeout: 500
 			} );
 		};
 
-		autoFadeSurroundings();
-
-		window.fadeOutSurroundings = fadeOutSurroundings;
-		window.fadeInSurroundings = fadeInSurroundings;
-		window.autoFadeSurroundings = autoFadeSurroundings;
+		wp.editor.autoFadeSurroundings();
 
 	} );
 

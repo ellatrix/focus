@@ -61,6 +61,8 @@
 
 			if ( hiddenHeight === textEditorHeight ) {
 				return;
+			} else if ( hiddenHeight < 300 ) {
+				hiddenHeight = 300;
 			}
 
 			$textEditor.height( hiddenHeight );

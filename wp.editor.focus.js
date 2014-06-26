@@ -103,6 +103,26 @@
 				}, 200 );
 			} );
 
+			editor.on( 'nodechange', function( event ) {
+				if ( event.element.nodeName === 'BR' ) {
+					event.element = event.element.parentNode;
+				}
+
+				if ( event.element === editor.getBody() ) {
+					return;
+				}
+
+				var lineHeight = parseInt( editor.dom.getStyle( event.element, 'line-height', true ), 10 ),
+					cursorTop = event.element.getBoundingClientRect().top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top,
+					cursorBottom = cursorTop + lineHeight,
+					editorTop = $adminBar.outerHeight() + $visualTop.outerHeight();
+					editorBottom = $window.height() - $bottom.outerHeight();
+
+				if ( cursorTop < editorTop || cursorBottom > editorBottom ) {
+					window.scrollTo( window.pageXOffset, cursorTop + window.pageYOffset - windowHeight / 2 );
+				}
+			} );
+
 			editor.on( 'hide', function() {
 				textEditorResize();
 				adjust( 'resize' );

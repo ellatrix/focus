@@ -115,7 +115,7 @@
 				var lineHeight = parseInt( editor.dom.getStyle( event.element, 'line-height', true ), 10 ),
 					cursorTop = event.element.getBoundingClientRect().top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top,
 					cursorBottom = cursorTop + lineHeight,
-					editorTop = $adminBar.outerHeight() + $visualTop.outerHeight();
+					editorTop = $adminBar.outerHeight() + $visualTop.outerHeight(),
 					editorBottom = $window.height() - $bottom.outerHeight();
 
 				if ( cursorTop < editorTop || cursorBottom > editorBottom ) {

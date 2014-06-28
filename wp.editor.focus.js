@@ -103,21 +103,18 @@
 				}, 200 );
 			} );
 
-			editor.on( 'nodechange', function( event ) {
-				if ( event.element.nodeName === 'BR' ) {
-					event.element = event.element.parentNode;
-				}
+			editor.on( 'nodechange', function() {
+				var offset = editor.wp.getCursorOffset(),
+					cursorTop, cursorBottom, editorTop, editorBottom;
 
-				if ( event.element === editor.getBody() ) {
+				if ( ! offset ) {
 					return;
 				}
 
-
-				var offset = editor.wp.getCursorOffset();
-					cursorTop = offset.top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top,
-					cursorBottom = cursorTop + offset.height,
-					editorTop = $adminBar.outerHeight() + $visualTop.outerHeight(),
-					editorBottom = $window.height() - $bottom.outerHeight();
+				cursorTop = offset.top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top;
+				cursorBottom = cursorTop + offset.height;
+				editorTop = $adminBar.outerHeight() + $visualTop.outerHeight();
+				editorBottom = $window.height() - $bottom.outerHeight();
 
 				if ( cursorTop < editorTop || cursorBottom > editorBottom ) {
 					window.scrollTo( window.pageXOffset, cursorTop + window.pageYOffset - windowHeight / 2 );
@@ -126,19 +123,53 @@
 
 			editor.wp = {};
 
+			window.testCursorOffset = function( times ) {
+				_.each( [
+					'range',
+					'setContent',
+					'setNode',
+					'insertNode'
+				], function( value, i ) {
+					var t = times;
+
+					editor.selection.setCursorLocation( editor.dom.select( 'p' )[0], 1 );
+
+					console.time( value );
+
+					while( t-- ) {
+
+						editor.wp[ 'getCursorOffset' + ( i ? i + 1 : '' ) ]();
+					}
+
+					console.timeEnd( value );
+				} );
+			};
+
 			editor.wp.getCursorOffset = function() {
 				var selection = editor.selection,
 					range = selection.getRng(),
 					clone, offset;
+
+				if ( tinymce.Env.ie && tinymce.Env.ie < 9 ) {
+					return;
+				}
 
 				if ( selection.isCollapsed() ) {
 					clone = range.cloneRange();
 
 					if ( clone.startContainer.length > 1 ) {
 						if ( clone.startContainer.length > clone.endOffset ) {
-							clone.setEnd( clone.startContainer, clone.endOffset + 1 );
+							try {
+								clone.setEnd( clone.startContainer, clone.endOffset + 1 );
+							} catch ( e ) {
+								console.log( e );
+							}
 						} else {
-							clone.setEnd( clone.startContainer, clone.endOffset - 1 );
+							try {
+								clone.setStart( clone.startContainer, clone.endOffset - 1 );
+							} catch ( e ) {
+								console.log( e );
+							}
 						}
 
 						selection.setRng( clone );
@@ -147,9 +178,54 @@
 					} else {
 						offset = selection.getNode().getBoundingClientRect();
 					}
+				} else {
+					offset = range.getBoundingClientRect();
+				}
+
+				if ( ! offset.height ) {
+					return false;
 				}
 
 				return offset;
+			};
+
+			editor.wp.getCursorOffset2 = function() {
+				var dom = editor.dom,
+					selection = editor.selection,
+					el;
+
+				if ( selection.isCollapsed() ) {
+					selection.setContent( '<span id="mce-cursorlocation">a</span>' );
+					el = dom.select( '#mce-cursorlocation' )[0];
+					el.getBoundingClientRect();
+					dom.remove( el );
+				}
+			};
+
+			editor.wp.getCursorOffset3 = function() {
+				var dom = editor.dom,
+					selection = editor.selection,
+					el;
+
+				if ( selection.isCollapsed() ) {
+					selection.setNode( dom.create( 'span', { id: 'mce-cursorlocation' }, 'a' ) );
+					el = dom.select( '#mce-cursorlocation' )[0];
+					el.getBoundingClientRect();
+					dom.remove( el );
+				}
+			};
+
+			editor.wp.getCursorOffset4 = function() {
+				var dom = editor.dom,
+					selection = editor.selection,
+					el;
+
+				if ( selection.isCollapsed() ) {
+					selection.getRng().insertNode( dom.create( 'span', { id: 'mce-cursorlocation' }, 'a' ) );
+					el = dom.select( '#mce-cursorlocation' )[0];
+					el.getBoundingClientRect();
+					dom.remove( el );
+				}
 			};
 
 			editor.on( 'hide', function() {

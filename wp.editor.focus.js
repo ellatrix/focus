@@ -112,9 +112,10 @@
 					return;
 				}
 
-				var lineHeight = parseInt( editor.dom.getStyle( event.element, 'line-height', true ), 10 ),
-					cursorTop = event.element.getBoundingClientRect().top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top,
-					cursorBottom = cursorTop + lineHeight,
+
+				var offset = editor.wp.getCursorOffset();
+					cursorTop = offset.top + editor.getContentAreaContainer().getElementsByTagName( 'iframe' )[0].getBoundingClientRect().top,
+					cursorBottom = cursorTop + offset.height,
 					editorTop = $adminBar.outerHeight() + $visualTop.outerHeight(),
 					editorBottom = $window.height() - $bottom.outerHeight();
 
@@ -122,6 +123,34 @@
 					window.scrollTo( window.pageXOffset, cursorTop + window.pageYOffset - windowHeight / 2 );
 				}
 			} );
+
+			editor.wp = {};
+
+			editor.wp.getCursorOffset = function() {
+				var selection = editor.selection,
+					range = selection.getRng(),
+					clone, offset;
+
+				if ( selection.isCollapsed() ) {
+					clone = range.cloneRange();
+
+					if ( clone.startContainer.length > 1 ) {
+						if ( clone.startContainer.length > clone.endOffset ) {
+							clone.setEnd( clone.startContainer, clone.endOffset + 1 );
+						} else {
+							clone.setEnd( clone.startContainer, clone.endOffset - 1 );
+						}
+
+						selection.setRng( clone );
+						offset = selection.getRng().getBoundingClientRect();
+						selection.setRng( range );
+					} else {
+						offset = selection.getNode().getBoundingClientRect();
+					}
+				}
+
+				return offset;
+			};
 
 			editor.on( 'hide', function() {
 				textEditorResize();

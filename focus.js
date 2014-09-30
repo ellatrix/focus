@@ -78,7 +78,9 @@
 			editor.addButton( 'wp_fullscreen', {
 				tooltip: 'Distraction Free Writing',
 				shortcut: 'Alt+Shift+W',
-				onclick: wp.editor.fullscreen.toggle,
+				onclick: function() {
+					wp.editor.fullscreen.toggle();
+				},
 				classes: 'wp-fullscreen btn widget', // This overwrites all classes on the container!
 				onPostRender: function() {
 					editorButton = this;
@@ -103,10 +105,10 @@
 				transitions: true
 			},
 			off: function() {
-				this.toggle();
+				visible && this.toggle();
 			},
 			on: function() {
-				this.toggle();
+				! visible && this.toggle();
 			},
 			toggle: function() {
 				var self = this;

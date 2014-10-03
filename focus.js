@@ -38,7 +38,9 @@ jQuery( function( $ ) {
 			faded = true;
 
 			$in = $out.filter( ':visible' );
-			$in.add( $slug ).fadeTo( 'slow', 0 );
+
+			$in.fadeTo( 'slow', 0 );
+			$slug.fadeTo( 'slow', 0.2 );
 			$menu.animate( { left: -$menu.width() }, 'slow' );
 
 			getEditorRect();
@@ -49,7 +51,8 @@ jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$in.add( $slug ).fadeTo( 'slow', 1 );
+			$in.fadeTo( 'slow', 1 );
+			$slug.fadeTo( 'slow', 1 );
 			$menu.animate( { left: 0 }, 'slow' );
 		}
 	}
@@ -58,7 +61,7 @@ jQuery( function( $ ) {
 	$title.add( $content ).on( 'focus.focus click.focus', fadeOut );
 	$document.on( 'tinymce-editor-focus.focus', fadeOut );
 
-	// Fade back in when the mouse moves AND the mouse is buffer x 1px outside the editor area.
+	// Fade in when the mouse moves AND the mouse is buffer x 1px outside the editor area.
 	$window.on( 'mousemove.focus', function( event ) {
 		var x = event.pageX,
 			y = event.pageY;
@@ -70,13 +73,21 @@ jQuery( function( $ ) {
 		}
 	} );
 
-	// Fade back when the mouse scrolls buffer x 1px over the edge of the editor area.
+	// Fade in when the mouse scrolls buffer x 1px over the edge of the editor area.
 	$window.on( 'scroll.focus', function() {
 		var y = window.pageYOffset;
 
 		if ( mouseY + y < editorRect.top || mouseY + y > editorRect.bottom ) {
 			fadeIn();
 		}
+	} );
+
+	// Fade in the slug area when hovered.
+
+	$slug.on( 'mouseenter', function() {
+		faded && $slug.fadeTo( 'fast', 1 );
+	} ).on( 'mouseleave', function() {
+		faded && $slug.fadeTo( 'fast', 0.2 );
 	} );
 
 	// Recalculate the editor area rectangle when the window or tinymce window resizes,

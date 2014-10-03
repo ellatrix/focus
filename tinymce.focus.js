@@ -1,3 +1,12 @@
-window.tinymce.PluginManager.add( 'wpfullscreen', function( editor ) {
-	window.jQuery && window.jQuery( document ).triggerHandler( 'tinymce-editor-setup', [ editor ] );
-} );
+( function( mce, $ ) {
+	'use strict';
+
+	mce.PluginManager.add( 'wpfullscreen', function( editor ) {
+		if ( editor.id === 'content' ) {
+			editor.on( 'click focus', function() {
+				$( document ).triggerHandler( 'tinymce-editor-focus', [ editor ] );
+			} );
+		}
+	} );
+
+} )( tinymce, jQuery );

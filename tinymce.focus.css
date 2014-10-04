@@ -1,4 +1,4 @@
-body {
+html:not( .ios ) body {
 	margin-left: auto;
 	margin-right: auto;
 }

@@ -13,6 +13,7 @@ jQuery( function( $ ) {
 			.add( 'div.updated' )
 			.add( 'div.error' ),
 		$fadeIn = $(),
+		buffer = 20,
 		tick = 0,
 		faded, editorRect, x, y;
 
@@ -59,6 +60,7 @@ jQuery( function( $ ) {
 				} )
 				// Fade in when the mouse moves away form the editor area.
 				// Let's confirm this by checking 8 times. Mouse movement is very sensitive.
+				// Also don't fade in when we are less than buffer * 1px away from the editor area.
 				.on( 'mousemove.focus', function( event ) {
 					var _x = event.pageX,
 						_y = event.pageY;
@@ -71,6 +73,15 @@ jQuery( function( $ ) {
 							( _x >= x && _x > editorRect.right )
 						) {
 							tick++;
+
+							if (
+								_y >= editorRect.top - buffer &&
+								_y <= editorRect.bottom + buffer &&
+								_x >= editorRect.left - buffer &&
+								_x <= editorRect.right + buffer
+							) {
+								return;
+							}
 
 							if ( tick > 8 ) {
 								fadeIn();

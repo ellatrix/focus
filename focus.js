@@ -45,8 +45,6 @@ jQuery( function( $ ) {
 			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( 'slow', 0 );
 
 			$editor.css( {
-				// margin: '-20px -20px 0',
-				// padding: '20px',
 				position: 'relative',
 				'z-index': 998
 			} );
@@ -120,8 +118,6 @@ jQuery( function( $ ) {
 			}
 
 			$fadeIn.fadeTo( 'slow', 1 );
-
-			// $editor.css( { margin: '', padding: '' } );
 
 			$overlay.hide().off( 'mouseenter.focus mousemove.focus touchstart.focus' );
 		}

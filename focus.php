@@ -20,8 +20,16 @@ if ( is_admin() && ! class_exists( 'Focus' ) ) {
 		}
 
 		function load() {
+			add_filter( 'mce_css', array( $this, 'css' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'mce_external_plugins', array( $this, 'external_plugins' ) );
+		}
+
+		function css( $css ) {
+			$css = explode( ',', $css );
+			array_push( $css, plugins_url( 'tinymce.focus.css?ver=' . urlencode( time() ), __FILE__ ) );
+
+			return implode( ',', $css );
 		}
 
 		function enqueue_scripts() {

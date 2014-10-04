@@ -13,7 +13,8 @@ jQuery( function( $ ) {
 			.add( 'div.updated' )
 			.add( 'div.error' ),
 		$fadeIn = $(),
-		faded;
+		tick = 0,
+		faded, editorRect, x, y;
 
 	$( document.body ).append( $overlay );
 
@@ -43,13 +44,51 @@ jQuery( function( $ ) {
 			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( 'slow', 0 );
 
 			$editor.css( {
-				margin: '-20px -20px 0',
-				padding: '20px',
+				// margin: '-20px -20px 0',
+				// padding: '20px',
 				position: 'relative',
 				'z-index': 998
 			} );
 
-			$overlay.show().on( 'mouseenter.focus', fadeIn )
+			$overlay.show()
+				// Always recalculate the editor area entering the overlay with the mouse.
+				.on( 'mouseenter.focus', function() {
+					editorRect = $editor.offset();
+					editorRect.right = editorRect.left + $editor.outerWidth();
+					editorRect.bottom = editorRect.top + $editor.outerHeight();
+				} )
+				// Fade in when the mouse moves away form the editor area.
+				// Let's confirm this by checking 10 times. Mouse movement is very sensitive.
+				.on( 'mousemove.focus', function( event ) {
+					var _x = event.pageX,
+						_y = event.pageY;
+
+					if ( x && y && ( _x !== x || _y !== y ) ) {
+						if (
+							( _y <= y && _y < editorRect.top ) ||
+							( _y >= y && _y > editorRect.bottom ) ||
+							( _x <= x && _x < editorRect.left ) ||
+							( _x >= x && _x > editorRect.right )
+						) {
+							tick++;
+
+							if ( tick > 10 ) {
+								fadeIn();
+
+								x = y = null;
+								tick = 0;
+
+								return;
+							}
+						} else {
+							tick = 0;
+						}
+					}
+
+					x = _x;
+					y = _y;
+				} )
+				// When the overlay is touched, always fade in and cancel the event.
 				.on( 'touchstart.focus', function( event ) {
 					event.preventDefault();
 					fadeIn();
@@ -73,9 +112,9 @@ jQuery( function( $ ) {
 
 			$fadeIn.fadeTo( 'slow', 1 );
 
-			$editor.css( { margin: '', padding: '' } );
+			// $editor.css( { margin: '', padding: '' } );
 
-			$overlay.hide().off( 'touchstart.focus mouseenter.focus' );
+			$overlay.hide().off( 'mouseenter.focus mousemove.focus touchstart.focus' );
 		}
 	}
 

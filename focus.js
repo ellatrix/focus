@@ -58,7 +58,7 @@ jQuery( function( $ ) {
 					editorRect.bottom = editorRect.top + $editor.outerHeight();
 				} )
 				// Fade in when the mouse moves away form the editor area.
-				// Let's confirm this by checking 10 times. Mouse movement is very sensitive.
+				// Let's confirm this by checking 8 times. Mouse movement is very sensitive.
 				.on( 'mousemove.focus', function( event ) {
 					var _x = event.pageX,
 						_y = event.pageY;
@@ -72,7 +72,7 @@ jQuery( function( $ ) {
 						) {
 							tick++;
 
-							if ( tick > 10 ) {
+							if ( tick > 8 ) {
 								fadeIn();
 
 								x = y = null;
@@ -80,8 +80,6 @@ jQuery( function( $ ) {
 
 								return;
 							}
-						} else {
-							tick = 0;
 						}
 					}
 

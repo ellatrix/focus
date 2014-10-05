@@ -4,4 +4,4 @@
 	mce.PluginManager.add( 'wpfullscreen', function() {
 		// Overwite the original plugin.
 	} );
-} )( tinymce );
+} )( window.tinymce );

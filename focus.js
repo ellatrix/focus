@@ -1,4 +1,4 @@
-jQuery( function( $ ) {
+window.jQuery( function( $ ) {
 	'use strict';
 
 	var $window = $( window ),
@@ -8,6 +8,9 @@ jQuery( function( $ ) {
 		$content = $( '#content' ),
 		$overlay = $( document.createElement( 'DIV' ) ),
 		$slug = $( '#edit-slug-box' ),
+		$slugFocusEl = $slug.find( 'a' )
+			.add( $slug.find( 'button' ) )
+			.add( $slug.find( 'input' ) ),
 		$menu = $( '#adminmenuwrap' ).add( '#adminmenuback' ),
 		$screenMeta = $( '#screen-meta' ),
 		$screenMetaLinks = $( '#screen-meta-links' ).children(),
@@ -19,7 +22,7 @@ jQuery( function( $ ) {
 		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
-		faded, editorRect, x, y, mouseY;
+		faded, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
 
@@ -37,10 +40,10 @@ jQuery( function( $ ) {
 	} );
 
 	function fadeOut() {
+		fadeOutSlug();
+
 		if ( ! faded ) {
 			faded = true;
-
-			$slug.fadeTo( 'slow', 0.2 );
 
 			$menu.animate( { left: -$menu.width() }, 'slow' );
 
@@ -121,10 +124,10 @@ jQuery( function( $ ) {
 	}
 
 	function fadeIn() {
+		fadeInSlug();
+
 		if ( faded ) {
 			faded = false;
-
-			$slug.fadeTo( 'slow', 1 );
 
 			$menu.animate( { left: 0 }, 'slow' );
 
@@ -139,6 +142,26 @@ jQuery( function( $ ) {
 			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
+		}
+	}
+
+	function fadeOutSlug() {
+		if ( ! fadedSlug && ! $slug.find( ':focus').length ) {
+			fadedSlug = true;
+
+			$slug.fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInSlug ).off( 'mouseleave.focus' );
+
+			$slugFocusEl.on( 'focus.focus', fadeInSlug );
+		}
+	}
+
+	function fadeInSlug() {
+		if ( fadedSlug ) {
+			fadedSlug = false;
+
+			$slug.fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutSlug ).off( 'mouseenter.focus' );
+
+			$slugFocusEl.off( 'focus.focus' );
 		}
 	}
 
@@ -167,13 +190,5 @@ jQuery( function( $ ) {
 				}
 			} );
 		}
-	} );
-
-	// Fade in the slug area when hovered.
-
-	$slug.on( 'mouseenter.focus', function() {
-		faded && $slug.fadeTo( 'fast', 1 );
-	} ).on( 'mouseleave.focus', function() {
-		faded && $slug.fadeTo( 'fast', 0.2 );
 	} );
 } );

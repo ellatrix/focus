@@ -1,7 +1,9 @@
 jQuery( function( $ ) {
 	'use strict';
 
-	var $editor = $( '#post-body-content' ),
+	var $window = $( window ),
+		$document = $( document ),
+		$editor = $( '#post-body-content' ),
 		$overlay = $( document.createElement( 'DIV' ) ),
 		$slug = $( '#edit-slug-box' ),
 		$menu = $( '#adminmenuwrap' ).add( '#adminmenuback' ),
@@ -15,7 +17,7 @@ jQuery( function( $ ) {
 		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
-		faded, editorRect, x, y;
+		faded, editorRect, x, y, mouseY, timer;
 
 	$( document.body ).append( $overlay );
 
@@ -100,6 +102,30 @@ jQuery( function( $ ) {
 					event.preventDefault();
 					fadeIn();
 				} );
+
+			$window
+				.on( 'scroll.focus', function() {
+					if ( ! mouseY ) {
+						return;
+					}
+
+					if ( timer ) {
+						clearTimeout( timer );
+					} else {
+						editorRect = $editor.offset();
+						editorRect.right = editorRect.left + $editor.outerWidth();
+						editorRect.bottom = editorRect.top + $editor.outerHeight();
+					}
+
+					timer = setTimeout( function() {
+						timer = null;
+					}, 300 );
+
+					if ( mouseY < editorRect.top - buffer || mouseY > editorRect.bottom + buffer ) {
+						fadeIn();
+						console.log( mouseY, editorRect.bottom );
+					}
+				} );
 		}
 	}
 
@@ -120,12 +146,26 @@ jQuery( function( $ ) {
 			$fadeIn.fadeTo( 'slow', 1 );
 
 			$overlay.hide().off( 'mouseenter.focus mousemove.focus touchstart.focus' );
+
+			$window.off( 'mousemove.focus scroll.focus' );
 		}
 	}
 
 	// Fade out when the title or editor is focussed/clicked.
 	$( '#title' ).add( '#content' ).on( 'focus.focus click.focus touchstart.focus', fadeOut );
-	$( document ).on( 'tinymce-editor-focus.focus', fadeOut );
+	$document.on( 'tinymce-editor-focus.focus', fadeOut );
+
+	$window.on( 'mousemove.focus', function( event ) {
+		mouseY = event.pageY;
+	} );
+
+	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
+		if ( editor.id === 'content' ) {
+			$( editor.getWin() ).on( 'mousemove.focus', function() {
+				mouseY = null;
+			} );
+		}
+	} );
 
 	// Fade in the slug area when hovered.
 

@@ -30,6 +30,10 @@ jQuery( function( $ ) {
 		'z-index': 997
 	} );
 
+	$window.on( 'mousemove.focus', function( event ) {
+		mouseY = event.pageY;
+	} );
+
 	function fadeOut() {
 		if ( ! faded ) {
 			faded = true;
@@ -57,6 +61,15 @@ jQuery( function( $ ) {
 					editorRect = $editor.offset();
 					editorRect.right = editorRect.left + $editor.outerWidth();
 					editorRect.bottom = editorRect.top + $editor.outerHeight();
+
+					$window.on( 'scroll.focus', function() {
+						if ( mouseY && ( mouseY < editorRect.top - buffer || mouseY > editorRect.bottom + buffer ) ) {
+							fadeIn();
+						}
+					} );
+				} )
+				.on( 'mouseleave.focus', function() {
+					$window.off( 'scroll.focus' );
 				} )
 				// Fade in when the mouse moves away form the editor area.
 				// Let's confirm this by checking 8 times. Mouse movement is very sensitive.
@@ -102,30 +115,6 @@ jQuery( function( $ ) {
 					event.preventDefault();
 					fadeIn();
 				} );
-
-			$window
-				.on( 'scroll.focus', function() {
-					if ( ! mouseY ) {
-						return;
-					}
-
-					if ( timer ) {
-						clearTimeout( timer );
-					} else {
-						editorRect = $editor.offset();
-						editorRect.right = editorRect.left + $editor.outerWidth();
-						editorRect.bottom = editorRect.top + $editor.outerHeight();
-					}
-
-					timer = setTimeout( function() {
-						timer = null;
-					}, 300 );
-
-					if ( mouseY < editorRect.top - buffer || mouseY > editorRect.bottom + buffer ) {
-						fadeIn();
-						console.log( mouseY, editorRect.bottom );
-					}
-				} );
 		}
 	}
 
@@ -145,27 +134,15 @@ jQuery( function( $ ) {
 
 			$fadeIn.fadeTo( 'slow', 1 );
 
-			$overlay.hide().off( 'mouseenter.focus mousemove.focus touchstart.focus' );
+			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
-			$window.off( 'mousemove.focus scroll.focus' );
+			$window.off( 'scroll.focus' );
 		}
 	}
 
 	// Fade out when the title or editor is focussed/clicked.
 	$( '#title' ).add( '#content' ).on( 'focus.focus click.focus touchstart.focus', fadeOut );
 	$document.on( 'tinymce-editor-focus.focus', fadeOut );
-
-	$window.on( 'mousemove.focus', function( event ) {
-		mouseY = event.pageY;
-	} );
-
-	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
-		if ( editor.id === 'content' ) {
-			$( editor.getWin() ).on( 'mousemove.focus', function() {
-				mouseY = null;
-			} );
-		}
-	} );
 
 	// Fade in the slug area when hovered.
 

@@ -4,6 +4,8 @@ jQuery( function( $ ) {
 	var $window = $( window ),
 		$document = $( document ),
 		$editor = $( '#post-body-content' ),
+		$title = $( '#title' ),
+		$content = $( '#content' ),
 		$overlay = $( document.createElement( 'DIV' ) ),
 		$slug = $( '#edit-slug-box' ),
 		$menu = $( '#adminmenuwrap' ).add( '#adminmenuback' ),
@@ -17,7 +19,7 @@ jQuery( function( $ ) {
 		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
-		faded, editorRect, x, y, mouseY, timer;
+		faded, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
 
@@ -141,8 +143,31 @@ jQuery( function( $ ) {
 	}
 
 	// Fade out when the title or editor is focussed/clicked.
-	$( '#title' ).add( '#content' ).on( 'focus.focus click.focus touchstart.focus', fadeOut );
-	$document.on( 'tinymce-editor-focus.focus', fadeOut );
+
+	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus', fadeOut );
+
+	$title.on( 'keydown', function( event ) {
+		if ( event.shiftKey && event.keyCode === 9 ) {
+			fadeIn();
+		}
+	} );
+
+	$content.on( 'keydown', function( event ) {
+		if ( ! event.shiftKey && event.keyCode === 9 ) {
+			fadeIn();
+		}
+	} );
+
+	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
+		if ( editor.id === 'content' ) {
+			editor.on( 'click focus', fadeOut );
+			editor.on( 'keydown', function( event ) {
+				if ( ! event.shiftKey && event.keyCode === 9 ) {
+					fadeIn();
+				}
+			} );
+		}
+	} );
 
 	// Fade in the slug area when hovered.
 

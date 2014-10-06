@@ -3,6 +3,7 @@ window.jQuery( function( $ ) {
 
 	var $window = $( window ),
 		$document = $( document ),
+		$wrap = $( '#wpwrap' ),
 		$editor = $( '#post-body-content' ),
 		$title = $( '#title' ),
 		$content = $( '#content' ),
@@ -149,8 +150,8 @@ window.jQuery( function( $ ) {
 		setTimeout( function() {
 			var position = document.activeElement.compareDocumentPosition( $editor.get( 0 ) );
 
-			// The focussed node is before or behind the editor area.
-			if ( position === 2 || position === 4 ) {
+			// The focussed node is before or behind the editor area, and not ouside the wrap.
+			if ( ( position === 2 || position === 4 ) && $.contains( $wrap.get( 0 ), document.activeElement ) ) {
 				fadeIn();
 			}
 		}, 0 );

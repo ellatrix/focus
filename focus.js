@@ -145,6 +145,17 @@ window.jQuery( function( $ ) {
 		}
 	}
 
+	function maybeFadeIn() {
+		setTimeout( function() {
+			var position = document.activeElement.compareDocumentPosition( $editor.get( 0 ) );
+
+			// The focussed node is before or behind the editor area.
+			if ( position === 2 || position === 4 ) {
+				fadeIn();
+			}
+		}, 0 );
+	}
+
 	function fadeOutSlug() {
 		if ( ! fadedSlug && ! $slug.find( ':focus').length ) {
 			fadedSlug = true;
@@ -165,30 +176,12 @@ window.jQuery( function( $ ) {
 		}
 	}
 
-	// Fade out when the title or editor is focussed/clicked.
-
-	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus', fadeOut );
-
-	$title.on( 'keydown', function( event ) {
-		if ( event.shiftKey && event.keyCode === 9 ) {
-			fadeIn();
-		}
-	} );
-
-	$content.on( 'keydown', function( event ) {
-		if ( ! event.shiftKey && event.keyCode === 9 ) {
-			fadeIn();
-		}
-	} );
+	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus', fadeOut ).on( 'blur', maybeFadeIn );
 
 	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
 		if ( editor.id === 'content' ) {
 			editor.on( 'click focus', fadeOut );
-			editor.on( 'keydown', function( event ) {
-				if ( ! event.shiftKey && event.keyCode === 9 ) {
-					fadeIn();
-				}
-			} );
+			editor.on( 'blur', maybeFadeIn );
 		}
 	} );
 } );

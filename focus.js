@@ -78,7 +78,7 @@ window.jQuery( function( $ ) {
 					$window.off( 'scroll.focus' );
 				} )
 				// Fade in when the mouse moves away form the editor area.
-				// Let's confirm this by checking 8 times. Mouse movement is very sensitive.
+				// Let's confirm this by checking 2 times. Mouse movement is very sensitive.
 				// Also don't fade in when we are less than buffer * 1px away from the editor area.
 				.on( 'mousemove.focus', function( event ) {
 					var _x = event.pageX,
@@ -102,7 +102,7 @@ window.jQuery( function( $ ) {
 								return;
 							}
 
-							if ( tick > 8 ) {
+							if ( tick > 1 ) {
 								fadeIn();
 
 								x = y = null;
@@ -130,15 +130,15 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$menu.animate( { left: 0 }, 'slow' );
+			$menu.animate( { left: 0 }, 400 );
 
 			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( 'slow', 1 );
+				$screenMetaLinks.add( $screenMeta ).fadeTo( 400, 1 );
 			} else {
-				$screenMetaLinks.animate( { top: 0 }, 'slow' );
+				$screenMetaLinks.animate( { top: 0 }, 400 );
 			}
 
-			$fadeIn.fadeTo( 'slow', 1 );
+			$fadeIn.fadeTo( 400, 1 );
 
 			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 

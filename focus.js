@@ -177,11 +177,11 @@ window.jQuery( function( $ ) {
 		}
 	}
 
-	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus', fadeOut ).on( 'blur', maybeFadeIn );
+	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur', maybeFadeIn );
 
 	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
 		if ( editor.id === 'content' ) {
-			editor.on( 'click focus', fadeOut );
+			editor.on( 'click focus keyup', fadeOut );
 			editor.on( 'blur', maybeFadeIn );
 		}
 	} );

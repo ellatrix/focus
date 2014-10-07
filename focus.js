@@ -4,6 +4,7 @@ window.jQuery( function( $ ) {
 	var $window = $( window ),
 		$document = $( document ),
 		$wrap = $( '#wpwrap' ),
+		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
 		$title = $( '#title' ),
 		$content = $( '#content' ),
@@ -23,7 +24,7 @@ window.jQuery( function( $ ) {
 		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
-		faded, fadedSlug, editorRect, x, y, mouseY;
+		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
 
@@ -41,8 +42,6 @@ window.jQuery( function( $ ) {
 	} );
 
 	function fadeOut() {
-		fadeOutSlug();
-
 		if ( ! faded ) {
 			faded = true;
 
@@ -123,28 +122,32 @@ window.jQuery( function( $ ) {
 					fadeIn();
 				} );
 		}
+
+		fadeOutAdminBar();
+		fadeOutSlug();
 	}
 
 	function fadeIn() {
-		fadeInSlug();
-
 		if ( faded ) {
 			faded = false;
 
-			$menu.animate( { left: 0 }, 400 );
+			$menu.animate( { left: 0 } );
 
 			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( 400, 1 );
+				$screenMetaLinks.add( $screenMeta ).fadeTo( null, 1 );
 			} else {
-				$screenMetaLinks.animate( { top: 0 }, 400 );
+				$screenMetaLinks.animate( { top: 0 } );
 			}
 
-			$fadeIn.fadeTo( 400, 1 );
+			$fadeIn.fadeTo( null, 1 );
 
 			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
 		}
+
+		fadeInAdminBar();
+		fadeInSlug();
 	}
 
 	function maybeFadeIn() {
@@ -158,8 +161,24 @@ window.jQuery( function( $ ) {
 		}, 0 );
 	}
 
+	function fadeOutAdminBar() {
+		if ( ! fadedAdminBar && faded ) {
+			fadedAdminBar = true;
+
+			$adminBar.fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
+		}
+	}
+
+	function fadeInAdminBar() {
+		if ( fadedAdminBar ) {
+			fadedAdminBar = false;
+
+			$adminBar.fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
+		}
+	}
+
 	function fadeOutSlug() {
-		if ( ! fadedSlug && ! $slug.find( ':focus').length ) {
+		if ( ! fadedSlug && faded && ! $slug.find( ':focus').length ) {
 			fadedSlug = true;
 
 			$slug.fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInSlug ).off( 'mouseleave.focus' );

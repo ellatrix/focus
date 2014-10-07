@@ -36,6 +36,7 @@ jQuery( document ).ready( function( $ ) {
 		sidebarBottom = 20,
 		autoresizeMinHeight = 300,
 		initialMode = window.getUserSetting( 'editor' ),
+		advanced = !! parseInt( window.getUserSetting( 'hidetb' ) ),
 		// These are corrected when adjust() runs, except on scrolling if already set.
 		heights = {
 			windowHeight: 0,
@@ -254,10 +255,15 @@ jQuery( document ).ready( function( $ ) {
 			adjust();
 		}
 
+		function toggleAdvanced() {
+			advanced = ! advanced;
+		}
+
 		mceBind = function() {
 			editor.on( 'keyup', mceKeyup );
 			editor.on( 'show', mceShow );
 			editor.on( 'hide', mceHide );
+			editor.on( 'wp-toolbar-toggle', toggleAdvanced );
 			// Adjust when the editor resizes.
 			editor.on( 'setcontent wp-autoresize wp-toolbar-toggle', adjust );
 
@@ -268,6 +274,7 @@ jQuery( document ).ready( function( $ ) {
 			editor.off( 'keyup', mceKeyup );
 			editor.off( 'show', mceShow );
 			editor.off( 'hide', mceHide );
+			editor.off( 'wp-toolbar-toggle', toggleAdvanced );
 			editor.off( 'setcontent wp-autoresize wp-toolbar-toggle', adjust );
 
 			$window.off( 'scroll.mce-float-panels' );
@@ -429,13 +436,15 @@ jQuery( document ).ready( function( $ ) {
 
 			// Maybe adjust the bottom bar.
 			if ( ( ! fixedBottom || resize ) &&
-				// +[n] for the border around the .wp-editor-container.
-				( windowPos + heights.windowHeight ) <= ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight + borderWidth ) ) {
+					advanced &&
+					// +[n] for the border around the .wp-editor-container.
+					( windowPos + heights.windowHeight ) <= ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight + borderWidth ) ) {
 				fixedBottom = true;
 
 				$statusBar.css( {
 					position: 'fixed',
 					bottom: heights.bottomHeight,
+					visibility: '',
 					width: contentWrapWidth - ( borderWidth * 2 )
 				} );
 
@@ -444,11 +453,14 @@ jQuery( document ).ready( function( $ ) {
 					bottom: 0,
 					width: contentWrapWidth
 				} );
-			} else if ( ( fixedBottom || resize ) &&
-					( windowPos + heights.windowHeight ) > ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight - borderWidth ) ) {
+			} else if ( ( ! advanced && fixedBottom ) ||
+					( ( fixedBottom || resize ) &&
+					( windowPos + heights.windowHeight ) > ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight - borderWidth ) ) ) {
 				fixedBottom = false;
 
 				$statusBar.add( $bottom ).attr( 'style', '' );
+
+				! advanced && $statusBar.css( 'visibility', 'hidden' );
 			}
 		}
 

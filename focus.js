@@ -75,10 +75,12 @@ window.jQuery( function( $ ) {
 					} );
 				} )
 				.on( 'mouseleave.focus', function() {
+					tick = 0;
+
 					$window.off( 'scroll.focus' );
 				} )
 				// Fade in when the mouse moves away form the editor area.
-				// Let's confirm this by checking 2 times. Mouse movement is very sensitive.
+				// Let's confirm this by checking 4 times. Mouse movement is very sensitive.
 				// Also don't fade in when we are less than buffer * 1px away from the editor area.
 				.on( 'mousemove.focus', function( event ) {
 					var _x = event.pageX,
@@ -92,7 +94,6 @@ window.jQuery( function( $ ) {
 							( _x >= x && _x > editorRect.right )
 						) {
 							tick++;
-
 							if (
 								_y >= editorRect.top - buffer &&
 								_y <= editorRect.bottom + buffer &&
@@ -102,7 +103,7 @@ window.jQuery( function( $ ) {
 								return;
 							}
 
-							if ( tick > 1 ) {
+							if ( tick > 3 ) {
 								fadeIn();
 
 								x = y = null;

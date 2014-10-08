@@ -13,30 +13,22 @@ window.jQuery( function( $ ) {
 		$slugFocusEl = $slug.find( 'a' )
 			.add( $slug.find( 'button' ) )
 			.add( $slug.find( 'input' ) ),
-		$menu = $( '#adminmenuwrap' ).add( '#adminmenuback' ),
-		$screenMeta = $( '#screen-meta' ),
-		$screenMetaLinks = $( '#screen-meta-links' ).children(),
-		$fadeOut = $( '.wrap' ).children( 'h2' )
-			.add( '#wpfooter' )
-			.add( '.postbox-container' )
-			.add( 'div.updated' )
-			.add( 'div.error' ),
-		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
 		fadeInTime = 400,
-		fadeOutTime = 600,
+		fadeOutTime = 1000,
 		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
 
 	$overlay.hide().css( {
+		background: '#f1f1f1',
 		position: 'fixed',
 		top: $( '#wpadminbar' ).height(),
 		right: 0,
 		bottom: 0,
 		left: 0,
-		'z-index': 997
+		'z-index': 9997
 	} );
 
 	$window.on( 'mousemove.focus', function( event ) {
@@ -47,22 +39,12 @@ window.jQuery( function( $ ) {
 		if ( ! faded ) {
 			faded = true;
 
-			$menu.animate( { left: -$menu.width() }, fadeOutTime );
-
-			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeOutTime, 0 );
-			} else {
-				$screenMetaLinks.animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
-			}
-
-			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( fadeOutTime, 0 );
-
 			$editor.css( {
 				position: 'relative',
-				'z-index': 998
+				'z-index': 9998
 			} );
 
-			$overlay.show()
+			$overlay.fadeIn( fadeOutTime )
 				// Always recalculate the editor area entering the overlay with the mouse.
 				.on( 'mouseenter.focus', function() {
 					editorRect = $editor.offset();
@@ -133,17 +115,7 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$menu.animate( { left: 0 }, fadeInTime );
-
-			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeInTime, 1 );
-			} else {
-				$screenMetaLinks.animate( { top: 0 }, fadeInTime );
-			}
-
-			$fadeIn.fadeTo( fadeInTime, 1 );
-
-			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
+			$overlay.fadeOut( fadeInTime ).off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
 		}

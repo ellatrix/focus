@@ -16,7 +16,7 @@ window.jQuery( function( $ ) {
 		buffer = 20,
 		tick = 0,
 		fadeInTime = 400,
-		fadeOutTime = 1000,
+		fadeOutTime = 2000,
 		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
@@ -44,7 +44,7 @@ window.jQuery( function( $ ) {
 				'z-index': 9998
 			} );
 
-			$overlay.fadeIn( fadeOutTime )
+			$overlay.stop().fadeIn( fadeOutTime )
 				// Always recalculate the editor area entering the overlay with the mouse.
 				.on( 'mouseenter.focus', function() {
 					editorRect = $editor.offset();
@@ -115,7 +115,7 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$overlay.fadeOut( fadeInTime ).off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
+			$overlay.stop().fadeOut( fadeInTime ).off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
 		}

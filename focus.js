@@ -24,6 +24,8 @@ window.jQuery( function( $ ) {
 		$fadeIn = $(),
 		buffer = 20,
 		tick = 0,
+		fadeInTime = 400,
+		fadeOutTime = 600,
 		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
@@ -45,15 +47,15 @@ window.jQuery( function( $ ) {
 		if ( ! faded ) {
 			faded = true;
 
-			$menu.animate( { left: -$menu.width() }, 'slow' );
+			$menu.animate( { left: -$menu.width() }, fadeOutTime );
 
 			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( 'slow', 0 );
+				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeOutTime, 0 );
 			} else {
-				$screenMetaLinks.animate( { top: -$screenMetaLinks.height() }, 'slow' );
+				$screenMetaLinks.animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
 			}
 
-			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( 'slow', 0 );
+			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( fadeOutTime, 0 );
 
 			$editor.css( {
 				position: 'relative',
@@ -131,15 +133,15 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$menu.animate( { left: 0 } );
+			$menu.animate( { left: 0 }, fadeInTime );
 
 			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( null, 1 );
+				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeInTime, 1 );
 			} else {
-				$screenMetaLinks.animate( { top: 0 } );
+				$screenMetaLinks.animate( { top: 0 }, fadeInTime );
 			}
 
-			$fadeIn.fadeTo( null, 1 );
+			$fadeIn.fadeTo( fadeInTime, 1 );
 
 			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
@@ -165,7 +167,7 @@ window.jQuery( function( $ ) {
 		if ( ! fadedAdminBar && faded ) {
 			fadedAdminBar = true;
 
-			$adminBar.fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
+			$adminBar.fadeTo( fadeOutTime, 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
 		}
 	}
 
@@ -173,7 +175,7 @@ window.jQuery( function( $ ) {
 		if ( fadedAdminBar ) {
 			fadedAdminBar = false;
 
-			$adminBar.fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
+			$adminBar.fadeTo( fadeInTime, 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
 		}
 	}
 

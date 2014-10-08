@@ -22,22 +22,32 @@ window.jQuery( function( $ ) {
 			.add( 'div.updated' )
 			.add( 'div.error' ),
 		$fadeIn = $(),
-		buffer = 20,
 		tick = 0,
+
+		buffer = 20,
+
 		fadeInTime = 400,
-		fadeOutTime = 2000,
 		fadeOutTime = 600,
+
+		slide = true,
+
 		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
 
 	$( document.body ).append( $overlay );
 
-	$overlay.hide().css( {
+	$overlay.css( {
+		background: slide ? null : '#f1f1f1',
+		display: 'none',
 		position: 'fixed',
 		top: $( '#wpadminbar' ).height(),
 		right: 0,
 		bottom: 0,
 		left: 0,
-		'z-index': 997
+		'z-index': 9997
+	} );
+
+	$editor.css( {
+		position: 'relative'
 	} );
 
 	$window.on( 'mousemove.focus', function( event ) {
@@ -48,22 +58,25 @@ window.jQuery( function( $ ) {
 		if ( ! faded ) {
 			faded = true;
 
-			$menu.animate( { left: -$menu.width() }, fadeOutTime );
+			if ( slide ) {
+				$menu.stop().animate( { left: -$menu.width() }, fadeOutTime );
 
-			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeOutTime, 0 );
+				if ( $screenMeta.is( ':visible' ) ) {
+					$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeOutTime, 0 );
+				} else {
+					$screenMetaLinks.stop().animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
+				}
+
+				$fadeIn = $fadeOut.filter( ':visible' ).stop().fadeTo( fadeOutTime, 0 );
+
+				$overlay.show();
 			} else {
-				$screenMetaLinks.animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
+				$overlay.stop().fadeIn( fadeOutTime );
 			}
 
-			$fadeIn = $fadeOut.filter( ':visible' ).fadeTo( fadeOutTime, 0 );
+			$editor.css( 'z-index', 9998 );
 
-			$editor.css( {
-				position: 'relative',
-				'z-index': 998
-			} );
-
-			$overlay.show()
+			$overlay
 				// Always recalculate the editor area entering the overlay with the mouse.
 				.on( 'mouseenter.focus', function() {
 					editorRect = $editor.offset();
@@ -134,17 +147,27 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			$menu.animate( { left: 0 }, fadeInTime );
+			if ( slide ) {
+				$menu.stop().animate( { left: 0 }, fadeInTime );
 
-			if ( $screenMeta.is( ':visible' ) ) {
-				$screenMetaLinks.add( $screenMeta ).fadeTo( fadeInTime, 1 );
+				if ( $screenMeta.is( ':visible' ) ) {
+					$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeInTime, 1 );
+				} else {
+					$screenMetaLinks.stop().animate( { top: 0 }, fadeInTime );
+				}
+
+				$fadeIn.stop().fadeTo( fadeInTime, 1 );
+
+				$overlay.hide();
+
+				$editor.css( 'z-index', '' );
 			} else {
-				$screenMetaLinks.animate( { top: 0 }, fadeInTime );
+				$overlay.stop().fadeOut( fadeInTime, function() {
+					$editor.css( 'z-index', '' );
+				} );
 			}
 
-			$fadeIn.fadeTo( fadeInTime, 1 );
-
-			$overlay.hide().off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
+			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
 		}
@@ -168,7 +191,7 @@ window.jQuery( function( $ ) {
 		if ( ! fadedAdminBar && faded ) {
 			fadedAdminBar = true;
 
-			$adminBar.fadeTo( fadeOutTime, 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
+			$adminBar.stop().fadeTo( fadeOutTime, 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
 		}
 	}
 
@@ -176,7 +199,7 @@ window.jQuery( function( $ ) {
 		if ( fadedAdminBar ) {
 			fadedAdminBar = false;
 
-			$adminBar.fadeTo( fadeInTime, 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
+			$adminBar.stop().fadeTo( fadeInTime, 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
 		}
 	}
 
@@ -184,7 +207,7 @@ window.jQuery( function( $ ) {
 		if ( ! fadedSlug && faded && ! $slug.find( ':focus').length ) {
 			fadedSlug = true;
 
-			$slug.fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInSlug ).off( 'mouseleave.focus' );
+			$slug.stop().fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInSlug ).off( 'mouseleave.focus' );
 
 			$slugFocusEl.on( 'focus.focus', fadeInSlug );
 		}
@@ -194,7 +217,7 @@ window.jQuery( function( $ ) {
 		if ( fadedSlug ) {
 			fadedSlug = false;
 
-			$slug.fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutSlug ).off( 'mouseenter.focus' );
+			$slug.stop().fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutSlug ).off( 'mouseenter.focus' );
 
 			$slugFocusEl.off( 'focus.focus' );
 		}

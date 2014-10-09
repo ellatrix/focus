@@ -56,15 +56,7 @@ window.jQuery( function( $ ) {
 
 	// Wait for quicktags to initialize.
 	setTimeout( function() {
-		$textButton = $( '#qt_content_fullscreen' )
-			.toggleClass( 'active', isOn )
-			.on( 'click.focus', function( event ) {
-				event.preventDefault();
-
-				toggle();
-
-				$( this ).toggleClass( 'active', isOn );
-			} );
+		$textButton = $( '#qt_content_fullscreen' ).toggleClass( 'active', isOn ).on( 'click.focus', toggle );
 	}, 300 );
 
 	$window.on( 'mousemove.focus', function( event ) {

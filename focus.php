@@ -37,6 +37,8 @@ if ( is_admin() && ! class_exists( 'Focus' ) ) {
 			wp_deregister_script( 'editor-expand' );
 			wp_enqueue_script( 'editor-expand', plugins_url( 'editor-expand.js', __FILE__ ), array( 'jquery' ), '0.2', true );
 			wp_enqueue_script( 'focus', plugins_url( 'focus.js', __FILE__ ), array( 'jquery' ), '0.2', true );
+
+			wp_enqueue_style( 'focus', plugins_url( 'focus.css', __FILE__ ) );
 		}
 
 		function external_plugins( $plugins ) {

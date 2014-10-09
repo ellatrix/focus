@@ -1,0 +1,10 @@
+#qt_content_fullscreen.active {
+	background: #ebebeb;
+	border-color: #999;
+	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
+	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
+}
+
+#qt_content_fullscreen:focus {
+	outline: none;
+}

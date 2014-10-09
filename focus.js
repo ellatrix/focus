@@ -22,6 +22,10 @@ window.jQuery( function( $ ) {
 			.add( 'div.updated' )
 			.add( 'div.error' ),
 		$fadeIn = $(),
+		$textButton = $(),
+		mceBind = function() {},
+		mceUnbind = function() {},
+		isOn = !! parseInt( window.getUserSetting( 'dfw' ) ),
 		tick = 0,
 
 		buffer = 20,
@@ -31,7 +35,7 @@ window.jQuery( function( $ ) {
 
 		slide = true,
 
-		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY;
+		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY, button;
 
 	$( document.body ).append( $overlay );
 
@@ -50,9 +54,58 @@ window.jQuery( function( $ ) {
 		position: 'relative'
 	} );
 
+	// Wait for quicktags to initialize.
+	setTimeout( function() {
+		$textButton = $( '#qt_content_fullscreen' )
+			.toggleClass( 'active', isOn )
+			.on( 'click.focus', function( event ) {
+				event.preventDefault();
+
+				toggle();
+
+				$( this ).toggleClass( 'active', isOn );
+			} );
+	}, 300 );
+
 	$window.on( 'mousemove.focus', function( event ) {
 		mouseY = event.pageY;
 	} );
+
+	function on() {
+		if ( ! isOn ) {
+			isOn = true;
+
+			mceBind();
+
+			$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur.focus', maybeFadeIn );
+
+			fadeOut();
+
+			window.setUserSetting( 'dfw', '1' );
+
+			$textButton.addClass( 'active' );
+		}
+	}
+
+	function off() {
+		if ( isOn ) {
+			isOn = false;
+
+			mceUnbind();
+
+			$title.add( $content ).off( '.focus' );
+
+			fadeIn();
+
+			window.setUserSetting( 'dfw', '0' );
+
+			$textButton.removeClass( 'active' );
+		}
+	}
+
+	function toggle() {
+		( isOn ? off : on )();
+	}
 
 	function fadeOut() {
 		if ( ! faded ) {
@@ -223,12 +276,38 @@ window.jQuery( function( $ ) {
 		}
 	}
 
-	$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur', maybeFadeIn );
+	$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
+		editor.addButton( 'wp_fullscreen', {
+			tooltip: 'Distraction Free Writing',
+			onclick: toggle,
+			classes: 'wp-fullscreen btn widget',
+			onPostRender: function() {
+				button = this;
+			}
+		} );
+	} );
 
 	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
 		if ( editor.id === 'content' ) {
-			editor.on( 'click focus keyup', fadeOut );
-			editor.on( 'blur', maybeFadeIn );
+			mceBind = function() {
+				button.active( true );
+				editor.on( 'click focus keyup', fadeOut );
+				editor.on( 'blur', maybeFadeIn );
+			};
+
+			mceUnbind = function() {
+				button.active( false );
+				editor.off( 'click focus keyup', fadeOut );
+				editor.off( 'blur', maybeFadeIn );
+			};
+
+			if ( isOn ) {
+				mceBind();
+			}
 		}
 	} );
+
+	if ( isOn ) {
+		$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur.focus', maybeFadeIn );
+	}
 } );

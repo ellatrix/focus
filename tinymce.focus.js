@@ -1,7 +1,7 @@
-( function( mce ) {
+( function( mce, $ ) {
 	'use strict';
 
-	mce.PluginManager.add( 'wpfullscreen', function() {
-		// Overwite the original plugin.
+	mce.PluginManager.add( 'wpfullscreen', function( editor ) {
+		$( document ).triggerHandler( 'tinymce-editor-setup', [ editor ] );
 	} );
-} )( window.tinymce );
+} )( window.tinymce, window.jQuery );

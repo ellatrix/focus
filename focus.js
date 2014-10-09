@@ -25,7 +25,8 @@ window.jQuery( function( $ ) {
 		$textButton = $(),
 		mceBind = function() {},
 		mceUnbind = function() {},
-		isOn = !! parseInt( window.getUserSetting( 'dfw' ) ),
+		dfw = window.getUserSetting( 'dfw' ),
+		isOn = dfw ? !! parseInt( dfw, 10 ) : true,
 		tick = 0,
 
 		buffer = 20,

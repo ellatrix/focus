@@ -36,7 +36,7 @@ window.jQuery( function( $ ) {
 
 		slide = true,
 
-		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY, button;
+		faded, fadedAdminBar, fadedSlug, editorRect, x, y, mouseY, button, timer, editorHasFocus;
 
 	$( document.body ).append( $overlay );
 
@@ -70,7 +70,10 @@ window.jQuery( function( $ ) {
 
 			mceBind();
 
-			$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur.focus', maybeFadeIn );
+			$title.add( $content )
+				.on( 'click.focus touchstart.focus keyup.focus', fadeOut )
+				.on( 'focus.focus', maybeFadeOut )
+				.on( 'blur.focus', maybeFadeIn );
 
 			fadeOut();
 
@@ -100,7 +103,11 @@ window.jQuery( function( $ ) {
 		( isOn ? off : on )();
 	}
 
-	function fadeOut() {
+	function fadeOut( event ) {
+		if ( event && event.keyCode === 9 ) {
+			return;
+		}
+
 		if ( ! faded ) {
 			faded = true;
 
@@ -223,6 +230,18 @@ window.jQuery( function( $ ) {
 		fadeInSlug();
 	}
 
+	function maybeFadeOut( event ) {
+		timer && clearTimeout( timer );
+
+		timer = setTimeout( function() {
+			timer = null;
+
+			if ( event.target === document.activeElement || ( event.target.id === 'content' && editorHasFocus ) ) {
+				fadeOut();
+			}
+		}, 1000 );
+	}
+
 	function maybeFadeIn() {
 		setTimeout( function() {
 			var position = document.activeElement.compareDocumentPosition( $editor.get( 0 ) );
@@ -282,17 +301,31 @@ window.jQuery( function( $ ) {
 	} );
 
 	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
+		function focus() {
+			editorHasFocus = true;
+		}
+
+		function blur() {
+			editorHasFocus = false;
+		}
+
 		if ( editor.id === 'content' ) {
 			mceBind = function() {
 				button.active( true );
-				editor.on( 'click focus keyup', fadeOut );
+				editor.on( 'click keyup', fadeOut );
+				editor.on( 'focus', maybeFadeOut );
 				editor.on( 'blur', maybeFadeIn );
+				editor.on( 'focus', focus );
+				editor.on( 'blur', blur );
 			};
 
 			mceUnbind = function() {
 				button.active( false );
-				editor.off( 'click focus keyup', fadeOut );
+				editor.off( 'click keyup', fadeOut );
+				editor.off( 'focus', maybeFadeOut );
 				editor.off( 'blur', maybeFadeIn );
+				editor.off( 'focus', focus );
+				editor.off( 'blur', blur );
 			};
 
 			if ( isOn ) {
@@ -309,6 +342,9 @@ window.jQuery( function( $ ) {
 	} );
 
 	if ( isOn ) {
-		$title.add( $content ).on( 'focus.focus click.focus touchstart.focus keyup.focus', fadeOut ).on( 'blur.focus', maybeFadeIn );
+		$title.add( $content )
+			.on( 'click.focus touchstart.focus keyup.focus', fadeOut )
+			.on( 'focus.focus', maybeFadeOut )
+			.on( 'blur.focus', maybeFadeIn );
 	}
 } );

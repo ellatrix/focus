@@ -1,6 +1,6 @@
 === Focus ===
 
-Contributors: avryl, markjaquith
+Contributors: avryl, markjaquith, azaozz, wordpressdotorg
 Requires at least: 4.0
 Tags: TinyMCE, editor, focus
 Tested up to: 4.0

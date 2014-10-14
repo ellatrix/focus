@@ -191,6 +191,8 @@ window.jQuery( function( $ ) {
 					event.preventDefault();
 					fadeIn();
 				} );
+
+			$editor.off( 'mouseenter.focus' );
 		}
 
 		fadeOutAdminBar();
@@ -224,6 +226,12 @@ window.jQuery( function( $ ) {
 			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.off( 'scroll.focus' );
+
+			$editor.on( 'mouseenter.focus', function() {
+				if ( $.contains( $editor.get( 0 ), document.activeElement ) || editorHasFocus ) {
+					fadeOut();
+				}
+			} );
 		}
 
 		fadeInAdminBar();

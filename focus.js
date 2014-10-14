@@ -155,6 +155,7 @@ window.jQuery( function( $ ) {
 							( _x >= x && _x > editorRect.right )
 						) {
 							tick++;
+
 							if (
 								_y >= editorRect.top - buffer &&
 								_y <= editorRect.bottom + buffer &&
@@ -297,6 +298,13 @@ window.jQuery( function( $ ) {
 			if ( isOn ) {
 				mceBind();
 			}
+
+			// Make sure the body focusses when clicking outside it.
+			editor.on( 'click', function( event ) {
+				if ( event.target === editor.getDoc().documentElement ) {
+					editor.focus();
+				}
+			} );
 		}
 	} );
 

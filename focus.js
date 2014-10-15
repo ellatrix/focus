@@ -114,6 +114,8 @@ window.jQuery( function( $ ) {
 	}
 
 	function fadeOut( event ) {
+		var $toolbars, $windows;
+
 		if ( event && event.keyCode === 9 ) {
 			return;
 		}
@@ -204,12 +206,27 @@ window.jQuery( function( $ ) {
 
 			$editor.off( 'mouseenter.focus' );
 
-			$window.add( $editorWindow ).on( 'mousemove.focus', maybeFadeButtons );
+			$toolbars = $upperToolbar.add( $visualToolbar ).add( $textToolbar );
+			$windows = $window.add( $editorWindow );
+
+			$toolbars.on( 'mouseenter.focus', function() {
+				buttonsTimer && clearTimeout( buttonsTimer );
+				$windows.off( 'mousemove.focus' );
+				fadeInButtons();
+			} );
+
+			$toolbars.on( 'mouseleave.focus', function() {
+				$windows.on( 'mousemove.focus', maybeFadeButtons );
+			} );
+
+			if ( ! $toolbars.find( ':hover' ).length ) {
+				$windows.on( 'mousemove.focus', maybeFadeButtons );
+				fadeOutButtons();
+			}
 		}
 
 		fadeOutAdminBar();
 		fadeOutSlug();
-		fadeOutButtons();
 	}
 
 	function fadeIn() {
@@ -239,6 +256,7 @@ window.jQuery( function( $ ) {
 			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
 			$window.add( $editorWindow ).off( '.focus' );
+			$upperToolbar.add( $visualToolbar ).add( $textToolbar ).off( '.focus' );
 
 			buttonsTimer && clearTimeout( buttonsTimer );
 

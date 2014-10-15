@@ -211,7 +211,7 @@ window.jQuery( function( $ ) {
 
 			$toolbars.on( 'mouseenter.focus', function() {
 				buttonsTimer && clearTimeout( buttonsTimer );
-				$windows.off( 'mousemove.focus' );
+				$windows.off( 'mousemove.focus', maybeFadeButtons );
 				fadeInButtons();
 			} );
 
@@ -255,7 +255,7 @@ window.jQuery( function( $ ) {
 
 			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
-			$window.add( $editorWindow ).off( '.focus' );
+			$window.add( $editorWindow ).off( 'mousemove.focus', maybeFadeButtons );
 			$upperToolbar.add( $visualToolbar ).add( $textToolbar ).off( '.focus' );
 
 			buttonsTimer && clearTimeout( buttonsTimer );

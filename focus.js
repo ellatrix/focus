@@ -3,7 +3,7 @@ window.jQuery( function( $ ) {
 
 	var $window = $( window ),
 		$document = $( document ),
-		$wrap = $( '#adminmenuwrap' ).add( '#wpcontent' ).add( '#wpfooter' ),
+		$wrap = $( '#wpcontent' ),
 		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
 		$title = $( '#title' ),
@@ -13,11 +13,13 @@ window.jQuery( function( $ ) {
 		$slugFocusEl = $slug.find( 'a' )
 			.add( $slug.find( 'button' ) )
 			.add( $slug.find( 'input' ) ),
-		$menu = $( '#adminmenuwrap' ).add( '#adminmenuback' ),
+		$menuWrap = $( '#adminmenuwrap' ),
+		$menu = $menuWrap.add( '#adminmenuback' ),
 		$screenMeta = $( '#screen-meta' ),
 		$screenMetaLinks = $( '#screen-meta-links' ).children(),
+		$footer = $( '#wpfooter' ),
 		$fadeOut = $( '.wrap' ).children( 'h2' )
-			.add( '#wpfooter' )
+			.add( $footer )
 			.add( '.postbox-container' )
 			.add( 'div.updated' )
 			.add( 'div.error' ),
@@ -288,8 +290,12 @@ window.jQuery( function( $ ) {
 		setTimeout( function() {
 			var position = document.activeElement.compareDocumentPosition( $editor.get( 0 ) );
 
+			function hasFocus( $el ) {
+				return $.contains( $el.get( 0 ), document.activeElement );
+			}
+
 			// The focussed node is before or behind the editor area, and not ouside the wrap.
-			if ( ( position === 2 || position === 4 ) && $.contains( $wrap.get( 0 ), document.activeElement ) ) {
+			if ( ( position === 2 || position === 4 ) && ( hasFocus( $menuWrap ) || hasFocus( $wrap ) || hasFocus( $footer ) ) ) {
 				fadeIn();
 			}
 		}, 0 );

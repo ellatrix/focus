@@ -93,6 +93,8 @@ window.jQuery( function( $ ) {
 
 			fadeIn();
 
+			$editor.off( '.focus' );
+
 			window.setUserSetting( 'dfw', '0' );
 
 			$textButton.removeClass( 'active' );

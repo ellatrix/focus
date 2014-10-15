@@ -3,7 +3,7 @@ window.jQuery( function( $ ) {
 
 	var $window = $( window ),
 		$document = $( document ),
-		$wrap = $( '#wpwrap' ),
+		$wrap = $( '#adminmenuwrap' ).add( '#wpcontent' ).add( '#wpfooter' ),
 		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
 		$title = $( '#title' ),

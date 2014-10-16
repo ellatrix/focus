@@ -43,7 +43,7 @@ window.jQuery( function( $ ) {
 
 		slide = true,
 
-		faded, fadedAdminBar, fadedSlug, fadedButtons, editorRect, x, y, mouseY, button, timer, buttonsTimer, editorHasFocus;
+		faded, fadedAdminBar, fadedSlug, fadedButtons, editorRect, x, y, mouseY, button, timer, buttonsTimer, buttonsMouseX, buttonsMouseY, editorHasFocus;
 
 	$upperToolbarTabs.wrapInner( '<span>' );
 	$upperToolbar = $upperToolbar.add( $upperToolbarTabs.children() );
@@ -337,7 +337,14 @@ window.jQuery( function( $ ) {
 		}
 	}
 
-	function maybeFadeButtons() {
+	function maybeFadeButtons( event ) {
+		var _x = event.clientX,
+			_y = event.clientY;
+
+		if ( buttonsMouseX === _x && buttonsMouseY === _y ) {
+			return;
+		}
+
 		if ( buttonsTimer ) {
 			clearTimeout( buttonsTimer );
 		} else {
@@ -349,6 +356,9 @@ window.jQuery( function( $ ) {
 
 			fadeOutButtons();
 		}, 1000 );
+
+		buttonsMouseX = _x;
+		buttonsMouseY = _y;
 	}
 
 	function fadeOutButtons() {

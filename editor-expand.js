@@ -216,7 +216,7 @@ jQuery( document ).ready( function( $ ) {
 		function mceScroll( key ) {
 			var VK = tinymce.util.VK,
 				offset = mceGetCursorOffset(),
-				buffer = 10,
+				buffer = 50,
 				cursorTop, cursorBottom, editorTop, editorBottom;
 
 			if ( ! offset ) {
@@ -228,7 +228,7 @@ jQuery( document ).ready( function( $ ) {
 			cursorTop = cursorTop - buffer;
 			cursorBottom = cursorBottom + buffer;
 			editorTop = heights.adminBarHeight + heights.toolsHeight + heights.menuBarHeight + heights.visualTopHeight;
-			editorBottom = heights.windowHeight - heights.bottomHeight - heights.statusBarHeight;
+			editorBottom = heights.windowHeight - ( advanced ? heights.bottomHeight + heights.statusBarHeight : 0 );
 
 			// Don't scroll if the node is taller than the visible part of the editor
 			if ( editorBottom - editorTop < offset.height ) {

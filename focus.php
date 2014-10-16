@@ -23,6 +23,7 @@ if ( is_admin() && ! class_exists( 'Focus' ) ) {
 			add_filter( 'mce_css', array( $this, 'css' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'mce_external_plugins', array( $this, 'external_plugins' ) );
+			add_action( 'tiny_mce_plugins', array( $this, 'plugins' ) );
 		}
 
 		function css( $css ) {
@@ -43,8 +44,13 @@ if ( is_admin() && ! class_exists( 'Focus' ) ) {
 
 		function external_plugins( $plugins ) {
 			$plugins['wpfullscreen'] = plugins_url( 'tinymce.focus.js', __FILE__ );
+			$plugins['wpautoresize'] = plugins_url( 'tinymce.autoresize.js', __FILE__ );
 
 			return $plugins;
+		}
+
+		function plugins( $plugins ) {
+			return array_diff( $plugins, array( 'wpautoresize' ) );
 		}
 	}
 

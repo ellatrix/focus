@@ -305,7 +305,9 @@ jQuery( document ).ready( function( $ ) {
 	} );
 
 	// Adjust the toolbars based on the active editor mode.
-	function adjust( type ) {
+	function adjust( event ) {
+		type = event && event.type;
+
 		// Make sure we're not in fullscreen mode.
 		if ( fullscreen && fullscreen.settings.visible ) {
 			return;
@@ -453,23 +455,27 @@ jQuery( document ).ready( function( $ ) {
 
 			// Maybe adjust the bottom bar.
 			if ( ( ! fixedBottom || resize ) &&
-					advanced &&
 					// +[n] for the border around the .wp-editor-container.
 					( windowPos + heights.windowHeight ) <= ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight + borderWidth ) ) {
-				fixedBottom = true;
 
-				$statusBar.css( {
-					position: 'fixed',
-					bottom: heights.bottomHeight,
-					visibility: '',
-					width: contentWrapWidth - ( borderWidth * 2 )
-				} );
+				if ( event && event.deltaHeight > 0 ) {
+					window.scrollBy( 0, event.deltaHeight );
+				} else if ( advanced ) {
+					fixedBottom = true;
 
-				$bottom.css( {
-					position: 'fixed',
-					bottom: 0,
-					width: contentWrapWidth
-				} );
+					$statusBar.css( {
+						position: 'fixed',
+						bottom: heights.bottomHeight,
+						visibility: '',
+						width: contentWrapWidth - ( borderWidth * 2 )
+					} );
+
+					$bottom.css( {
+						position: 'fixed',
+						bottom: 0,
+						width: contentWrapWidth
+					} );
+				}
 			} else if ( ( ! advanced && fixedBottom ) ||
 					( ( fixedBottom || resize ) &&
 					( windowPos + heights.windowHeight ) > ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight - borderWidth ) ) ) {

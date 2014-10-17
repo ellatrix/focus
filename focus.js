@@ -26,6 +26,7 @@ window.jQuery( function( $ ) {
 		$fadeIn = $(),
 		$textButton = $(),
 		$editorWindow = $(),
+		$editorIframe = $(),
 		$upperToolbar = $( '#wp-content-media-buttons' ),
 		$upperToolbarTabs = $editor.find( '.wp-editor-tabs' ).children( 'a' ),
 		$visualToolbar = $(),
@@ -339,7 +340,13 @@ window.jQuery( function( $ ) {
 
 	function maybeFadeButtons( event ) {
 		var _x = event.clientX,
-			_y = event.clientY;
+			_y = event.clientY,
+			rect;
+
+		if ( event.view === $editorWindow.get( 0 ) && ( rect = $editorIframe.get( 0 ).getBoundingClientRect() ) ) {
+			_x += rect.left;
+			_y += rect.top;
+		}
 
 		if ( buttonsMouseX === _x && buttonsMouseY === _y ) {
 			return;
@@ -399,6 +406,7 @@ window.jQuery( function( $ ) {
 
 		if ( editor.id === 'content' ) {
 			$editorWindow = $( editor.getWin() );
+			$editorIframe = $( editor.getContentAreaContainer() ).find( 'iframe' );
 			$visualToolbar = $editor.find( '.mce-toolbar-grp' ).children();
 
 			mceBind = function() {

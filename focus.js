@@ -44,7 +44,10 @@ window.jQuery( function( $ ) {
 
 		slide = true,
 
-		faded, fadedAdminBar, fadedSlug, fadedButtons, editorRect, x, y, mouseY, button, timer, buttonsTimer, buttonsMouseX, buttonsMouseY, editorHasFocus;
+		faded, fadedAdminBar, fadedSlug, fadedButtons,
+		editorRect, x, y, mouseY, button,
+		timer, buttonsTimer, focusLostTimer,
+		buttonsMouseX, buttonsMouseY, editorHasFocus;
 
 	$upperToolbarTabs.wrapInner( '<span>' );
 	$upperToolbar = $upperToolbar.add( $upperToolbarTabs.children() );
@@ -209,6 +212,13 @@ window.jQuery( function( $ ) {
 
 			$editor.off( 'mouseenter.focus' );
 
+			if ( focusLostTimer ) {
+				focusLostTimer = null;
+				clearTimeout( focusLostTimer );
+			}
+
+			$menuWrap.off( 'mouseenter.focus' );
+
 			$toolbars = $upperToolbar.add( $visualToolbar ).add( $textToolbar );
 			$windows = $window.add( $editorWindow );
 
@@ -267,6 +277,20 @@ window.jQuery( function( $ ) {
 				if ( $.contains( $editor.get( 0 ), document.activeElement ) || editorHasFocus ) {
 					fadeOut();
 				}
+			} );
+
+			focusLostTimer = setTimeout( function() {
+				focusLostTimer = null;
+				$editor.off( 'mouseenter.focus' );
+			}, 4000 );
+
+			$menuWrap.on( 'mouseenter.focus', function() {
+				if ( focusLostTimer ) {
+					focusLostTimer = null;
+					clearTimeout( focusLostTimer );
+				}
+
+				$editor.off( 'mouseenter.focus' );
 			} );
 		}
 

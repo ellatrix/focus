@@ -12,7 +12,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-if ( is_admin() && ! class_exists( 'Focus' ) ) {
+if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 	class Focus {
 		function __construct() {
 			add_action( 'load-post.php', array( $this, 'load' ) );

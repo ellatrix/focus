@@ -222,20 +222,20 @@ window.jQuery( function( $ ) {
 			$toolbars = $upperToolbar.add( $visualToolbar ).add( $textToolbar );
 			$windows = $window.add( $editorWindow );
 
-			$toolbars.on( 'mouseenter.focus', function() {
-				buttonsTimer && clearTimeout( buttonsTimer );
-				$windows.off( 'mousemove.focus', maybeFadeButtons );
-				fadeInButtons();
-			} );
+			// $toolbars.on( 'mouseenter.focus', function() {
+			// 	buttonsTimer && clearTimeout( buttonsTimer );
+			// 	$windows.off( 'mousemove.focus', maybeFadeButtons );
+			// 	fadeInButtons();
+			// } );
 
-			$toolbars.on( 'mouseleave.focus', function() {
-				$windows.on( 'mousemove.focus', maybeFadeButtons );
-			} );
+			// $toolbars.on( 'mouseleave.focus', function() {
+			// 	$windows.on( 'mousemove.focus', maybeFadeButtons );
+			// } );
 
-			if ( ! $toolbars.find( ':hover' ).length ) {
-				$windows.on( 'mousemove.focus', maybeFadeButtons );
-				fadeOutButtons();
-			}
+			// if ( ! $toolbars.find( ':hover' ).length ) {
+			// 	$windows.on( 'mousemove.focus', maybeFadeButtons );
+			// 	fadeOutButtons();
+			// }
 		}
 
 		fadeOutAdminBar();

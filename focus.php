@@ -43,7 +43,7 @@ if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 		}
 
 		function external_plugins( $plugins ) {
-			$plugins['wpfullscreen'] = plugins_url( 'tinymce.focus.js', __FILE__ );
+			$plugins['focus'] = plugins_url( 'tinymce.focus.js', __FILE__ );
 			$plugins['wpautoresize'] = plugins_url( 'tinymce.autoresize.js', __FILE__ );
 
 			return $plugins;

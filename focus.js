@@ -3,6 +3,7 @@ window.jQuery( function( $ ) {
 
 	var $window = $( window ),
 		$document = $( document ),
+		$body = $( document.body ),
 		$wrap = $( '#wpcontent' ),
 		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
@@ -236,6 +237,8 @@ window.jQuery( function( $ ) {
 			// 	$windows.on( 'mousemove.focus', maybeFadeButtons );
 			// 	fadeOutButtons();
 			// }
+
+			$body.addClass( 'focus-on' ).removeClass( 'focus-off' );
 		}
 
 		fadeOutAdminBar();
@@ -292,6 +295,8 @@ window.jQuery( function( $ ) {
 
 				$editor.off( 'mouseenter.focus' );
 			} );
+
+			$body.addClass( 'focus-off' ).removeClass( 'focus-on' );
 		}
 
 		fadeInAdminBar();

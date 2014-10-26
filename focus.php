@@ -6,7 +6,7 @@ Plugin URI: https://github.com/avryl/focus
 Description: Focus.
 Author: Janneke Van Dorpe
 Author URI: http://profiles.wordpress.org/avryl/
-Version: 0.2
+Version: 0.2.1
 Text Domain: focus
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

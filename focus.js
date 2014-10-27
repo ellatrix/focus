@@ -131,15 +131,15 @@ window.jQuery( function( $ ) {
 			faded = true;
 
 			if ( slide ) {
-				$menu.stop().animate( { left: -$menu.width() }, fadeOutTime );
+				// $menu.stop().animate( { left: -$menu.width() }, fadeOutTime );
 
-				if ( $screenMeta.is( ':visible' ) ) {
-					$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeOutTime, 0 );
-				} else {
-					$screenMetaLinks.stop().animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
-				}
+				// if ( $screenMeta.is( ':visible' ) ) {
+				// 	$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeOutTime, 0 );
+				// } else {
+				// 	$screenMetaLinks.stop().animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
+				// }
 
-				$fadeIn = $fadeOut.filter( ':visible' ).stop().fadeTo( fadeOutTime, 0 );
+				// $fadeIn = $fadeOut.filter( ':visible' ).stop().fadeTo( fadeOutTime, 0 );
 
 				$overlay.show();
 			} else {
@@ -241,8 +241,8 @@ window.jQuery( function( $ ) {
 			$body.addClass( 'focus-on' ).removeClass( 'focus-off' );
 		}
 
-		fadeOutAdminBar();
-		fadeOutSlug();
+		// fadeOutAdminBar();
+		// fadeOutSlug();
 	}
 
 	function fadeIn() {
@@ -299,8 +299,8 @@ window.jQuery( function( $ ) {
 			$body.addClass( 'focus-off' ).removeClass( 'focus-on' );
 		}
 
-		fadeInAdminBar();
-		fadeInSlug();
+		// fadeInAdminBar();
+		// fadeInSlug();
 		fadeInButtons();
 	}
 
@@ -440,8 +440,8 @@ window.jQuery( function( $ ) {
 
 			mceBind = function() {
 				button.active( true );
-				editor.on( 'click keyup', fadeOut );
-				editor.on( 'focus', maybeFadeOut );
+				editor.on( 'keyup', fadeOut );
+				// editor.on( 'focus', maybeFadeOut );
 				editor.on( 'blur', maybeFadeIn );
 				editor.on( 'focus', focus );
 				editor.on( 'blur', blur );
@@ -449,8 +449,8 @@ window.jQuery( function( $ ) {
 
 			mceUnbind = function() {
 				button.active( false );
-				editor.off( 'click keyup', fadeOut );
-				editor.off( 'focus', maybeFadeOut );
+				editor.off( 'keyup', fadeOut );
+				// editor.off( 'focus', maybeFadeOut );
 				editor.off( 'blur', maybeFadeIn );
 				editor.off( 'focus', focus );
 				editor.off( 'blur', blur );

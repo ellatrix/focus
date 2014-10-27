@@ -8,3 +8,72 @@
 #qt_content_fullscreen:focus {
 	outline: none;
 }
+
+.quicklinks {
+	transition: opacity .2s ease-in-out;
+}
+
+.focus-on .quicklinks{
+	opacity: 0;
+	transition-duration: .4s;
+}
+
+.wrap-h2 {
+	transition: opacity .2s ease-in-out;
+}
+
+.focus-on .wrap h2 {
+	opacity: 0;
+	transition-duration: .4s;
+}
+
+#titlediv #title {
+	transition: background .2s ease-in-out, box-shadow .2s ease-in-out;
+}
+
+.focus-on #titlediv #title {
+	background: transparent;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0);
+	transition-duration: .4s;
+}
+
+#screen-meta-links {
+	transform: translateZ(0);
+	transition: transform .2s ease-in-out;
+}
+
+.focus-on #screen-meta-links {
+	transform: translateY(-30px);
+	transition-duration: .4s;
+}
+
+#adminmenuback,
+#adminmenuwrap {
+	transform: translateZ(0);
+	transition: transform .2s ease-in-out;
+}
+
+.focus-on #adminmenuback,
+.focus-on #adminmenuwrap {
+	transform: translateX(-100%);
+	transition-duration: .4s;
+}
+
+.postbox-container {
+	transform: translateZ(0);
+	transition: transform .2s ease-in-out;
+}
+
+.focus-on .postbox-container {
+	transform: translateX(300px);
+	transition-duration: .4s;
+}
+
+#edit-slug-box {
+	transition: opacity .2s ease-in-out;
+}
+
+.focus-on #edit-slug-box {
+	opacity: .4;
+	transition-duration: .4s;
+}

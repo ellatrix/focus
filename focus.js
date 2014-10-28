@@ -435,6 +435,7 @@ window.jQuery( function( $ ) {
 				button.active( true );
 				editor.on( 'keyup', fadeOut );
 				editor.on( 'blur', maybeFadeIn );
+				editor.on( 'focus', focus );
 				editor.on( 'blur', blur );
 			};
 
@@ -442,6 +443,7 @@ window.jQuery( function( $ ) {
 				button.active( false );
 				editor.off( 'keyup', fadeOut );
 				editor.off( 'blur', maybeFadeIn );
+				editor.off( 'focus', focus );
 				editor.off( 'blur', blur );
 			};
 

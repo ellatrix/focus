@@ -7,7 +7,6 @@ window.jQuery( function( $ ) {
 		$wrap = $( '#wpcontent' ),
 		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
-		$title = $( '#title' ),
 		$content = $( '#content' ),
 		$overlay = $( document.createElement( 'DIV' ) ),
 		$slug = $( '#edit-slug-box' ),
@@ -40,7 +39,7 @@ window.jQuery( function( $ ) {
 
 		buffer = 20,
 
-		fadeInTime = 400,
+		fadeInTime = 200,
 		fadeOutTime = 600,
 
 		slide = true,
@@ -85,10 +84,6 @@ window.jQuery( function( $ ) {
 
 			mceBind();
 
-			$title.add( $content )
-				.on( 'click.focus touchstart.focus keyup.focus', fadeOut )
-				.on( 'focus.focus', maybeFadeOut )
-				.on( 'blur.focus', maybeFadeIn );
 
 			fadeOut();
 
@@ -103,8 +98,6 @@ window.jQuery( function( $ ) {
 			isOn = false;
 
 			mceUnbind();
-
-			$title.add( $content ).off( '.focus' );
 
 			fadeIn();
 
@@ -440,19 +433,15 @@ window.jQuery( function( $ ) {
 
 			mceBind = function() {
 				button.active( true );
-				editor.on( 'click keyup', fadeOut );
-				editor.on( 'focus', maybeFadeOut );
+				editor.on( 'keyup', fadeOut );
 				editor.on( 'blur', maybeFadeIn );
-				editor.on( 'focus', focus );
 				editor.on( 'blur', blur );
 			};
 
 			mceUnbind = function() {
 				button.active( false );
-				editor.off( 'click keyup', fadeOut );
-				editor.off( 'focus', maybeFadeOut );
+				editor.off( 'keyup', fadeOut );
 				editor.off( 'blur', maybeFadeIn );
-				editor.off( 'focus', focus );
 				editor.off( 'blur', blur );
 			};
 
@@ -468,11 +457,4 @@ window.jQuery( function( $ ) {
 			} );
 		}
 	} );
-
-	if ( isOn ) {
-		$title.add( $content )
-			.on( 'click.focus touchstart.focus keyup.focus', fadeOut )
-			.on( 'focus.focus', maybeFadeOut )
-			.on( 'blur.focus', maybeFadeIn );
-	}
 } );

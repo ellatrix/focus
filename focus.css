@@ -1,7 +1,6 @@
 #qt_content_fullscreen.active {
 	background: #ebebeb;
 	border-color: #999;
-	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
 	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
 }
 
@@ -10,71 +9,73 @@
 }
 
 .quicklinks {
+	-webkit-transform: translateZ(0);
 	transform: translateZ(0);
-	transition: opacity .2s ease-in-out;
 }
 
-.focus-on .quicklinks{
-	opacity: 0;
-	transition-duration: .4s;
-}
-
+.quicklinks,
 .wrap-h2 {
+	-webkit-transition: opacity .2s ease-in-out;
 	transition: opacity .2s ease-in-out;
 }
 
+.focus-on .quicklinks,
 .focus-on .wrap h2 {
 	opacity: 0;
+	-webkit-transition-duration: .4s;
 	transition-duration: .4s;
 }
 
 #titlediv #title {
+	-webkit-transition: background .2s ease-in-out, box-shadow .2s ease-in-out;
 	transition: background .2s ease-in-out, box-shadow .2s ease-in-out;
 }
 
 .focus-on #titlediv #title {
 	background: transparent;
 	box-shadow: inset 0 1px 2px rgba(0,0,0,0);
+	-webkit-transition-duration: .4s;
 	transition-duration: .4s;
 }
 
-#screen-meta-links {
+#screen-meta-links,
+#adminmenuback,
+#adminmenuwrap,
+.postbox-container {
+	-webkit-transform: translateZ(0);
 	transform: translateZ(0);
+	-webkit-transition: transform .2s ease-in-out;
 	transition: transform .2s ease-in-out;
 }
 
 .focus-on #screen-meta-links {
-	transform: translateY(-30px);
+	-webkit-transform: translateY(-30px);
+	webkit-transform: translateY(-30px);
+	-webkit-transition-duration: .4s;
 	transition-duration: .4s;
-}
-
-#adminmenuback,
-#adminmenuwrap {
-	transform: translateZ(0);
-	transition: transform .2s ease-in-out;
 }
 
 .focus-on #adminmenuback,
 .focus-on #adminmenuwrap {
+	-webkit-transform: translateX(-100%);
 	transform: translateX(-100%);
 	transition-duration: .4s;
 }
 
-.postbox-container {
-	transform: translateZ(0);
-	transition: transform .2s ease-in-out;
-}
-
 .focus-on .postbox-container {
+	-webkit-transform: translateX(300px);
 	transform: translateX(300px);
+	-webkit-transition-duration: .4s;
 	transition-duration: .4s;
 }
 
 #edit-slug-box {
+	-webkit-transition: opacity .2s ease-in-out;
 	transition: opacity .2s ease-in-out;
 }
 
 .focus-on #edit-slug-box {
 	opacity: .4;
+	-webkit-transition-duration: .4s;
 	transition-duration: .4s;
 }

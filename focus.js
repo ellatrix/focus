@@ -7,6 +7,7 @@ window.jQuery( function( $ ) {
 		$wrap = $( '#wpcontent' ),
 		$adminBar = $( '#wp-toolbar' ),
 		$editor = $( '#post-body-content' ),
+		$title = $( '#title' ),
 		$content = $( '#content' ),
 		$overlay = $( document.createElement( 'DIV' ) ),
 		$slug = $( '#edit-slug-box' ),
@@ -84,6 +85,9 @@ window.jQuery( function( $ ) {
 
 			mceBind();
 
+			$content.on( 'keyup.focus', fadeOut );
+
+			$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 
 			fadeOut();
 
@@ -98,6 +102,8 @@ window.jQuery( function( $ ) {
 			isOn = false;
 
 			mceUnbind();
+
+			$title.add( $content ).off( '.focus' );
 
 			fadeIn();
 
@@ -459,4 +465,11 @@ window.jQuery( function( $ ) {
 			} );
 		}
 	} );
+
+	if ( isOn ) {
+		$content.on( 'keyup.focus', fadeOut );
+
+		$title.add( $content )
+			.on( 'blur.focus', maybeFadeIn );
+	}
 } );

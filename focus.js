@@ -95,7 +95,20 @@ window.jQuery( function( $ ) {
 	}
 
 	function fadeOut( event ) {
-		if ( event && event.keyCode === 9 ) {
+		var key = event && event.keyCode;
+
+		if ( key && (
+			// Special keys excluding space ( tab, ctrl, alt, esc, arrow keys... )
+			( key <= 47 && key !== 8 && key !== 13 && key !== 32 && key !== 46 ) ||
+			// Windows keys
+			( key >= 91 && key <= 93 ) ||
+			// F keys
+			( key >= 112 && key <= 135 ) ||
+			// Num Lock, Scroll Lock, OEM
+			( key >= 144 && key <= 150 ) ||
+			// OEM or non-printable
+			key >= 224
+		) ) {
 			return;
 		}
 

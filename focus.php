@@ -6,7 +6,7 @@ Plugin URI: https://github.com/avryl/focus
 Description: Focus.
 Author: Janneke Van Dorpe
 Author URI: http://profiles.wordpress.org/avryl/
-Version: 0.2.4
+Version: 0.2.5
 Text Domain: focus
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -14,6 +14,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 	class Focus {
+		const VERSION = '0.2.5';
+
 		function __construct() {
 			add_action( 'load-post.php', array( $this, 'load' ) );
 			add_action( 'load-post-new.php', array( $this, 'load' ) );
@@ -36,10 +38,10 @@ if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 		function enqueue_scripts() {
 			wp_deregister_script( 'wp-fullscreen' );
 			wp_deregister_script( 'editor-expand' );
-			wp_enqueue_script( 'editor-expand', plugins_url( 'editor-expand.js', __FILE__ ), array( 'jquery' ), '0.2', true );
-			wp_enqueue_script( 'focus', plugins_url( 'focus.js', __FILE__ ), array( 'jquery' ), '0.2c', true );
+			wp_enqueue_script( 'editor-expand', plugins_url( 'editor-expand.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
+			wp_enqueue_script( 'focus', plugins_url( 'focus.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
 
-			wp_enqueue_style( 'focus', plugins_url( 'focus.css', __FILE__ ) );
+			wp_enqueue_style( 'focus', plugins_url( 'focus.css', __FILE__ ), array(), self::VERSION );
 		}
 
 		function external_plugins( $plugins ) {

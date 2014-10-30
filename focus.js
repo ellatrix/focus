@@ -28,10 +28,6 @@ window.jQuery( function( $ ) {
 		$textButton = $(),
 		$editorWindow = $(),
 		$editorIframe = $(),
-		$upperToolbar = $( '#wp-content-media-buttons' ),
-		$upperToolbarTabs = $editor.find( '.wp-editor-tabs' ).children( 'a' ),
-		$visualToolbar = $(),
-		$textToolbar = $( '#ed_toolbar' ).children(),
 		mceBind = function() {},
 		mceUnbind = function() {},
 		dfw = window.getUserSetting( 'dfw' ),
@@ -45,13 +41,9 @@ window.jQuery( function( $ ) {
 
 		slide = true,
 
-		faded, fadedAdminBar, fadedSlug, fadedButtons,
+		faded, fadedAdminBar, fadedSlug,
 		editorRect, x, y, mouseY, button,
-		timer, buttonsTimer, focusLostTimer,
-		buttonsMouseX, buttonsMouseY, editorHasFocus;
-
-	$upperToolbarTabs.wrapInner( '<span>' );
-	$upperToolbar = $upperToolbar.add( $upperToolbarTabs.children() );
+		focusLostTimer, editorHasFocus;
 
 	$( document.body ).append( $overlay );
 
@@ -120,8 +112,6 @@ window.jQuery( function( $ ) {
 	}
 
 	function fadeOut( event ) {
-		var $toolbars, $windows;
-
 		if ( event && event.keyCode === 9 ) {
 			return;
 		}
@@ -213,29 +203,11 @@ window.jQuery( function( $ ) {
 			$editor.off( 'mouseenter.focus' );
 
 			if ( focusLostTimer ) {
-				focusLostTimer = null;
 				clearTimeout( focusLostTimer );
+				focusLostTimer = null;
 			}
 
 			$menuWrap.off( 'mouseenter.focus' );
-
-			$toolbars = $upperToolbar.add( $visualToolbar ).add( $textToolbar );
-			$windows = $window.add( $editorWindow );
-
-			// $toolbars.on( 'mouseenter.focus', function() {
-			// 	buttonsTimer && clearTimeout( buttonsTimer );
-			// 	$windows.off( 'mousemove.focus', maybeFadeButtons );
-			// 	fadeInButtons();
-			// } );
-
-			// $toolbars.on( 'mouseleave.focus', function() {
-			// 	$windows.on( 'mousemove.focus', maybeFadeButtons );
-			// } );
-
-			// if ( ! $toolbars.find( ':hover' ).length ) {
-			// 	$windows.on( 'mousemove.focus', maybeFadeButtons );
-			// 	fadeOutButtons();
-			// }
 
 			$body.addClass( 'focus-on' ).removeClass( 'focus-off' );
 		}
@@ -270,11 +242,6 @@ window.jQuery( function( $ ) {
 
 			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
-			$window.add( $editorWindow ).off( 'mousemove.focus', maybeFadeButtons );
-			$upperToolbar.add( $visualToolbar ).add( $textToolbar ).off( '.focus' );
-
-			buttonsTimer && clearTimeout( buttonsTimer );
-
 			$editor.on( 'mouseenter.focus', function() {
 				if ( $.contains( $editor.get( 0 ), document.activeElement ) || editorHasFocus ) {
 					fadeOut();
@@ -288,8 +255,8 @@ window.jQuery( function( $ ) {
 
 			$menuWrap.on( 'mouseenter.focus', function() {
 				if ( focusLostTimer ) {
-					focusLostTimer = null;
 					clearTimeout( focusLostTimer );
+					focusLostTimer = null;
 				}
 
 				$editor.off( 'mouseenter.focus' );
@@ -300,19 +267,6 @@ window.jQuery( function( $ ) {
 
 		fadeInAdminBar();
 		fadeInSlug();
-		fadeInButtons();
-	}
-
-	function maybeFadeOut( event ) {
-		timer && clearTimeout( timer );
-
-		timer = setTimeout( function() {
-			timer = null;
-
-			if ( event.target === document.activeElement || ( event.target.id === 'content' && editorHasFocus ) ) {
-				fadeOut();
-			}
-		}, 1000 );
 	}
 
 	function maybeFadeIn() {
@@ -366,52 +320,6 @@ window.jQuery( function( $ ) {
 		}
 	}
 
-	function maybeFadeButtons( event ) {
-		var _x = event.clientX,
-			_y = event.clientY,
-			rect;
-
-		if ( event.view === $editorWindow.get( 0 ) && ( rect = $editorIframe.get( 0 ).getBoundingClientRect() ) ) {
-			_x += rect.left;
-			_y += rect.top;
-		}
-
-		if ( buttonsMouseX === _x && buttonsMouseY === _y ) {
-			return;
-		}
-
-		if ( buttonsTimer ) {
-			clearTimeout( buttonsTimer );
-		} else {
-			fadeInButtons();
-		}
-
-		buttonsTimer = setTimeout( function() {
-			buttonsTimer = null;
-
-			fadeOutButtons();
-		}, 1000 );
-
-		buttonsMouseX = _x;
-		buttonsMouseY = _y;
-	}
-
-	function fadeOutButtons() {
-		if ( ! fadedButtons ) {
-			fadedButtons = true;
-
-			$upperToolbar.add( $visualToolbar ).add( $textToolbar ).stop().fadeTo( fadeOutTime, 0.3 );
-		}
-	}
-
-	function fadeInButtons() {
-		if ( fadedButtons ) {
-			fadedButtons = false;
-
-			$upperToolbar.add( $visualToolbar ).add( $textToolbar ).stop().fadeTo( fadeInTime, 1 );
-		}
-	}
-
 	$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
 		editor.addButton( 'wp_fullscreen', {
 			tooltip: 'Distraction Free Writing',
@@ -435,7 +343,6 @@ window.jQuery( function( $ ) {
 		if ( editor.id === 'content' ) {
 			$editorWindow = $( editor.getWin() );
 			$editorIframe = $( editor.getContentAreaContainer() ).find( 'iframe' );
-			$visualToolbar = $editor.find( '.mce-toolbar-grp' ).children();
 
 			mceBind = function() {
 				button.active( true );
@@ -469,7 +376,6 @@ window.jQuery( function( $ ) {
 	if ( isOn ) {
 		$content.on( 'keyup.focus', fadeOut );
 
-		$title.add( $content )
-			.on( 'blur.focus', maybeFadeIn );
+		$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 	}
 } );

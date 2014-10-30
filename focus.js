@@ -5,7 +5,7 @@ window.jQuery( function( $ ) {
 		$document = $( document ),
 		$body = $( document.body ),
 		$wrap = $( '#wpcontent' ),
-		$adminBar = $( '#wp-toolbar' ),
+		$adminBar = $( '#wpadminbar' ),
 		$editor = $( '#post-body-content' ),
 		$title = $( '#title' ),
 		$content = $( '#content' ),
@@ -15,16 +15,7 @@ window.jQuery( function( $ ) {
 			.add( $slug.find( 'button' ) )
 			.add( $slug.find( 'input' ) ),
 		$menuWrap = $( '#adminmenuwrap' ),
-		$menu = $menuWrap.add( '#adminmenuback' ),
-		$screenMeta = $( '#screen-meta' ),
-		$screenMetaLinks = $( '#screen-meta-links' ).children(),
 		$footer = $( '#wpfooter' ),
-		$fadeOut = $( '.wrap' ).children( 'h2' )
-			.add( $footer )
-			.add( '.postbox-container' )
-			.add( 'div.updated' )
-			.add( 'div.error' ),
-		$fadeIn = $(),
 		$textButton = $(),
 		$editorWindow = $(),
 		$editorIframe = $(),
@@ -33,25 +24,17 @@ window.jQuery( function( $ ) {
 		dfw = window.getUserSetting( 'dfw' ),
 		isOn = dfw ? !! parseInt( dfw, 10 ) : true,
 		tick = 0,
-
 		buffer = 20,
-
-		fadeInTime = 200,
-		fadeOutTime = 600,
-
-		slide = true,
-
 		faded, fadedAdminBar, fadedSlug,
 		editorRect, x, y, mouseY, button,
-		focusLostTimer, editorHasFocus;
+		focusLostTimer, overlayTimer, editorHasFocus;
 
 	$( document.body ).append( $overlay );
 
 	$overlay.css( {
-		background: slide ? null : '#f1f1f1',
 		display: 'none',
 		position: 'fixed',
-		top: $( '#wpadminbar' ).height(),
+		top: $adminBar.height(),
 		right: 0,
 		bottom: 0,
 		left: 0,
@@ -119,21 +102,11 @@ window.jQuery( function( $ ) {
 		if ( ! faded ) {
 			faded = true;
 
-			if ( slide ) {
-				$menu.stop().animate( { left: -$menu.width() }, fadeOutTime );
+			clearTimeout( overlayTimer );
 
-				if ( $screenMeta.is( ':visible' ) ) {
-					$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeOutTime, 0 );
-				} else {
-					$screenMetaLinks.stop().animate( { top: -$screenMetaLinks.height() }, fadeOutTime );
-				}
-
-				$fadeIn = $fadeOut.filter( ':visible' ).stop().fadeTo( fadeOutTime, 0 );
-
+			overlayTimer = setTimeout( function() {
 				$overlay.show();
-			} else {
-				$overlay.stop().fadeIn( fadeOutTime );
-			}
+			}, 600 );
 
 			$editor.css( 'z-index', 9998 );
 
@@ -220,25 +193,13 @@ window.jQuery( function( $ ) {
 		if ( faded ) {
 			faded = false;
 
-			if ( slide ) {
-				$menu.stop().animate( { left: 0 }, fadeInTime );
+			clearTimeout( overlayTimer );
 
-				if ( $screenMeta.is( ':visible' ) ) {
-					$screenMetaLinks.add( $screenMeta ).stop().fadeTo( fadeInTime, 1 );
-				} else {
-					$screenMetaLinks.stop().animate( { top: 0 }, fadeInTime );
-				}
-
-				$fadeIn.stop().fadeTo( fadeInTime, 1 );
-
+			overlayTimer = setTimeout( function() {
 				$overlay.hide();
+			}, 200 );
 
-				$editor.css( 'z-index', '' );
-			} else {
-				$overlay.stop().fadeOut( fadeInTime, function() {
-					$editor.css( 'z-index', '' );
-				} );
-			}
+			$editor.css( 'z-index', '' );
 
 			$overlay.off( 'mouseenter.focus mouseleave.focus mousemove.focus touchstart.focus' );
 
@@ -251,7 +212,7 @@ window.jQuery( function( $ ) {
 			focusLostTimer = setTimeout( function() {
 				focusLostTimer = null;
 				$editor.off( 'mouseenter.focus' );
-			}, 4000 );
+			}, 1000 );
 
 			$menuWrap.on( 'mouseenter.focus', function() {
 				if ( focusLostTimer ) {
@@ -288,7 +249,13 @@ window.jQuery( function( $ ) {
 		if ( ! fadedAdminBar && faded ) {
 			fadedAdminBar = true;
 
-			$adminBar.stop().fadeTo( fadeOutTime, 0.3 ).on( 'mouseenter.focus', fadeInAdminBar ).off( 'mouseleave.focus' );
+			$adminBar
+				.on( 'mouseenter.focus', function() {
+					$adminBar.addClass( 'focus-off' );
+				} )
+				.on( 'mouseleave.focus', function() {
+					$adminBar.removeClass( 'focus-off' );
+				} );
 		}
 	}
 
@@ -296,7 +263,7 @@ window.jQuery( function( $ ) {
 		if ( fadedAdminBar ) {
 			fadedAdminBar = false;
 
-			$adminBar.stop().fadeTo( fadeInTime, 1 ).on( 'mouseleave.focus', fadeOutAdminBar ).off( 'mouseenter.focus' );
+			$adminBar.off( '.focus' );
 		}
 	}
 
@@ -306,7 +273,7 @@ window.jQuery( function( $ ) {
 
 			$slug.stop().fadeTo( 'fast', 0.3 ).on( 'mouseenter.focus', fadeInSlug ).off( 'mouseleave.focus' );
 
-			$slugFocusEl.on( 'focus.focus', fadeInSlug );
+			$slugFocusEl.on( 'focus.focus', fadeInSlug ).off( 'blur.focus' );
 		}
 	}
 
@@ -316,7 +283,7 @@ window.jQuery( function( $ ) {
 
 			$slug.stop().fadeTo( 'fast', 1 ).on( 'mouseleave.focus', fadeOutSlug ).off( 'mouseenter.focus' );
 
-			$slugFocusEl.off( 'focus.focus' );
+			$slugFocusEl.on( 'blur.focus', fadeOutSlug ).off( 'focus.focus' );
 		}
 	}
 

@@ -60,7 +60,7 @@ window.jQuery( function( $ ) {
 
 			mceBind();
 
-			$content.on( 'keyup.focus', fadeOut );
+			$content.on( 'keydown.focus', fadeOut );
 
 			$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 
@@ -97,8 +97,13 @@ window.jQuery( function( $ ) {
 	function fadeOut( event ) {
 		var key = event && event.keyCode;
 
+		if ( key === 27 ) {
+			fadeIn();
+			return;
+		}
+
 		if ( key && (
-			// Special keys excluding space ( tab, ctrl, alt, esc, arrow keys... )
+			// Special keys ( tab, ctrl, alt, esc, arrow keys... )
 			( key <= 47 && key !== 8 && key !== 13 && key !== 32 && key !== 46 ) ||
 			// Windows keys
 			( key >= 91 && key <= 93 ) ||
@@ -326,7 +331,7 @@ window.jQuery( function( $ ) {
 
 			mceBind = function() {
 				button.active( true );
-				editor.on( 'keyup', fadeOut );
+				editor.on( 'keydown', fadeOut );
 				editor.on( 'blur', maybeFadeIn );
 				editor.on( 'focus', focus );
 				editor.on( 'blur', blur );
@@ -334,7 +339,7 @@ window.jQuery( function( $ ) {
 
 			mceUnbind = function() {
 				button.active( false );
-				editor.off( 'keyup', fadeOut );
+				editor.off( 'keydown', fadeOut );
 				editor.off( 'blur', maybeFadeIn );
 				editor.off( 'focus', focus );
 				editor.off( 'blur', blur );
@@ -354,7 +359,7 @@ window.jQuery( function( $ ) {
 	} );
 
 	if ( isOn ) {
-		$content.on( 'keyup.focus', fadeOut );
+		$content.on( 'keydown.focus', fadeOut );
 
 		$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 	}

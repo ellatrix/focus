@@ -36,7 +36,7 @@ jQuery( document ).ready( function( $ ) {
 		sidebarBottom = 20,
 		autoresizeMinHeight = 300,
 		initialMode = window.getUserSetting( 'editor' ),
-		advanced = !! parseInt( window.getUserSetting( 'hidetb' ) ),
+		advanced = !! parseInt( window.getUserSetting( 'hidetb' ), 10 ),
 		// These are corrected when adjust() runs, except on scrolling if already set.
 		heights = {
 			windowHeight: 0,

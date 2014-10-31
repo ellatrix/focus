@@ -23,10 +23,11 @@ window.jQuery( function( $ ) {
 		mceUnbind = function() {},
 		dfw = window.getUserSetting( 'dfw' ),
 		isOn = dfw ? !! parseInt( dfw, 10 ) : true,
-		tick = 0,
+		traveledX = 0,
+		traveledY = 0,
 		buffer = 20,
 		faded, fadedAdminBar, fadedSlug,
-		editorRect, x, y, mouseY, button,
+		editorRect, x, y, mouseY, scrollY, button,
 		focusLostTimer, overlayTimer, editorHasFocus;
 
 	$( document.body ).append( $overlay );
@@ -136,54 +137,65 @@ window.jQuery( function( $ ) {
 					editorRect.bottom = editorRect.top + $editor.outerHeight();
 
 					$window.on( 'scroll.focus', function() {
-						if ( mouseY && ( mouseY < editorRect.top - buffer || mouseY > editorRect.bottom + buffer ) ) {
+						var nScrollY = window.pageYOffset;
+
+						if ( (
+							scrollY && mouseY &&
+							scrollY !== nScrollY
+						) && (
+							mouseY < editorRect.top - buffer ||
+							mouseY > editorRect.bottom + buffer
+						) ) {
 							fadeIn();
 						}
+
+						scrollY = nScrollY;
 					} );
 				} )
 				.on( 'mouseleave.focus', function() {
-					tick = 0;
+					x = y =  null;
+					traveledX = traveledY = 0;
 
 					$window.off( 'scroll.focus' );
 				} )
 				// Fade in when the mouse moves away form the editor area.
-				// Let's confirm this by checking 4 times. Mouse movement is very sensitive.
-				// Also don't fade in when we are less than buffer * 1px away from the editor area.
 				.on( 'mousemove.focus', function( event ) {
-					var _x = event.pageX,
-						_y = event.pageY;
+					var nx = event.pageX,
+						ny = event.pageY;
 
-					if ( x && y && ( _x !== x || _y !== y ) ) {
+					if ( x && y && ( nx !== x || ny !== y ) ) {
 						if (
-							( _y <= y && _y < editorRect.top ) ||
-							( _y >= y && _y > editorRect.bottom ) ||
-							( _x <= x && _x < editorRect.left ) ||
-							( _x >= x && _x > editorRect.right )
+							( ny <= y && ny < editorRect.top ) ||
+							( ny >= y && ny > editorRect.bottom ) ||
+							( nx <= x && nx < editorRect.left ) ||
+							( nx >= x && nx > editorRect.right )
 						) {
-							tick++;
+							traveledX += Math.abs( x - nx );
+							traveledY += Math.abs( y - ny );
 
-							if (
-								_y >= editorRect.top - buffer &&
-								_y <= editorRect.bottom + buffer &&
-								_x >= editorRect.left - buffer &&
-								_x <= editorRect.right + buffer
-							) {
-								return;
-							}
-
-							if ( tick > 3 ) {
+							if ( (
+								ny <= editorRect.top - buffer ||
+								ny >= editorRect.bottom + buffer ||
+								nx <= editorRect.left - buffer ||
+								nx >= editorRect.right + buffer
+							) && (
+								traveledX > 10 ||
+								traveledY > 10
+							) ) {
 								fadeIn();
 
-								x = y = null;
-								tick = 0;
+								x = y =  null;
+								traveledX = traveledY = 0;
 
 								return;
 							}
+						} else {
+							traveledX = traveledY = 0;
 						}
 					}
 
-					x = _x;
-					y = _y;
+					x = nx;
+					y = ny;
 				} )
 				// When the overlay is touched, always fade in and cancel the event.
 				.on( 'touchstart.focus', function( event ) {

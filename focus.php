@@ -6,7 +6,7 @@ Plugin URI: https://github.com/avryl/focus
 Description: Focus.
 Author: Janneke Van Dorpe
 Author URI: http://profiles.wordpress.org/avryl/
-Version: 0.2.5
+Version: 0.2.6
 Text Domain: focus
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 	class Focus {
-		const VERSION = '0.2.5';
+		const VERSION = '0.2.6';
 
 		function __construct() {
 			add_action( 'load-post.php', array( $this, 'load' ) );
@@ -30,7 +30,7 @@ if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 
 		function css( $css ) {
 			$css = explode( ',', $css );
-			array_push( $css, plugins_url( 'tinymce.focus.css?ver=' . urlencode( time() ), __FILE__ ) );
+			array_push( $css, plugins_url( 'tinymce.focus.css?v=' . ( defined( 'WP_DEBUG' ) && WP_DEBUG ? urlencode( time() ) : self::VERSION ), __FILE__ ) );
 
 			return implode( ',', $css );
 		}
@@ -45,8 +45,8 @@ if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 		}
 
 		function external_plugins( $plugins ) {
-			$plugins['focus'] = plugins_url( 'tinymce.focus.js', __FILE__ );
-			$plugins['wpautoresize'] = plugins_url( 'tinymce.autoresize.js', __FILE__ );
+			$plugins['focus'] = plugins_url( 'tinymce.focus.js?v=' . self::VERSION, __FILE__ );
+			$plugins['wpautoresize'] = plugins_url( 'tinymce.autoresize.js?v=' . self::VERSION, __FILE__ );
 
 			return $plugins;
 		}

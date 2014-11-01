@@ -454,7 +454,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 
 			// Maybe adjust the bottom bar.
-			if ( ( ! fixedBottom || resize ) &&
+			if ( ( ! fixedBottom || ( resize && advanced ) ) &&
 					// +[n] for the border around the .wp-editor-container.
 					( windowPos + heights.windowHeight ) <= ( editorPos + editorHeight + heights.bottomHeight + heights.statusBarHeight + borderWidth ) ) {
 

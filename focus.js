@@ -22,7 +22,8 @@ window.jQuery( function( $ ) {
 		mceBind = function() {},
 		mceUnbind = function() {},
 		dfw = window.getUserSetting( 'dfw' ),
-		isOn = dfw ? !! parseInt( dfw, 10 ) : true,
+		isActive = window.getUserSetting( 'editor_expand' ) === 'on',
+		isOn = isActive ? dfw ? !! parseInt( dfw, 10 ) : true : false,
 		traveledX = 0,
 		traveledY = 0,
 		buffer = 20,
@@ -55,8 +56,26 @@ window.jQuery( function( $ ) {
 		mouseY = event.pageY;
 	} );
 
+	function activate() {
+		if ( ! isActive ) {
+			isActive = true;
+
+			button.disabled( false );
+		}
+	}
+
+	function deactivate() {
+		if ( isActive ) {
+			off();
+
+			isActive = false;
+
+			button.disabled( true );
+		}
+	}
+
 	function on() {
-		if ( ! isOn ) {
+		if ( ! isOn && isActive ) {
 			isOn = true;
 
 			mceBind();
@@ -319,12 +338,13 @@ window.jQuery( function( $ ) {
 
 	$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
 		editor.addButton( 'wp_fullscreen', {
-			tooltip: 'Distraction Free Writing',
-			onclick: toggle,
 			classes: 'wp-fullscreen btn widget',
+			disabled: ! isActive,
+			onclick: toggle,
 			onPostRender: function() {
 				button = this;
-			}
+			},
+			tooltip: 'Distraction Free Writing',
 		} );
 	} );
 
@@ -369,6 +389,8 @@ window.jQuery( function( $ ) {
 			} );
 		}
 	} );
+
+	$document.on( 'editor-expand-on.focus', activate ).on( 'editor-expand-off.focus', deactivate );
 
 	if ( isOn ) {
 		$content.on( 'keydown.focus', fadeOut );

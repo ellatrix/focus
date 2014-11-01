@@ -661,6 +661,8 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 		adjust();
+
+		$document.trigger( 'editor-expand-on' );
 	}
 
 	function off() {
@@ -705,6 +707,8 @@ jQuery( document ).ready( function( $ ) {
 		if ( height ) {
 			$textEditor.height( height );
 		}
+
+		$document.trigger( 'editor-expand-off' );
 	}
 
 	// Start on load

@@ -122,7 +122,7 @@ window.jQuery( function( $ ) {
 			return;
 		}
 
-		if ( key && (
+		if ( event.metaKey || ( event.ctrlKey && ! event.altKey ) || ( key && (
 			// Special keys ( tab, ctrl, alt, esc, arrow keys... )
 			( key <= 47 && key !== 8 && key !== 13 && key !== 32 && key !== 46 ) ||
 			// Windows keys
@@ -133,7 +133,7 @@ window.jQuery( function( $ ) {
 			( key >= 144 && key <= 150 ) ||
 			// OEM or non-printable
 			key >= 224
-		) ) {
+		) ) ) {
 			return;
 		}
 
@@ -344,7 +344,7 @@ window.jQuery( function( $ ) {
 			onPostRender: function() {
 				button = this;
 			},
-			tooltip: 'Distraction Free Writing',
+			tooltip: 'Distraction Free Writing'
 		} );
 	} );
 
@@ -397,4 +397,14 @@ window.jQuery( function( $ ) {
 
 		$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 	}
+
+	$( '#save-post' ).on( 'click', function( event ) {
+		var wp = window.wp;
+
+		if ( wp && wp.autosave ) {
+			wp.autosave.server.triggerSave();
+		}
+
+		event.preventDefault();
+	} );
 } );

@@ -403,8 +403,7 @@ window.jQuery( function( $ ) {
 
 		if ( wp && wp.autosave ) {
 			wp.autosave.server.triggerSave();
+			event.preventDefault();
 		}
-
-		event.preventDefault();
 	} );
 } );

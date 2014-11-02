@@ -1,6 +1,18 @@
+Index: src/wp-admin/edit-form-advanced.php
+===================================================================
+--- src/wp-admin/edit-form-advanced.php	(revision 30177)
++++ src/wp-admin/edit-form-advanced.php	(working copy)
+@@ -512,7 +512,6 @@
+ <div id="postdivrich" class="postarea<?php if ( $_wp_editor_expand ) { echo ' wp-editor-expand'; } ?>">
+ 
+ <?php wp_editor( $post->post_content, 'content', array(
+-	'dfw' => true,
+ 	'drag_drop_upload' => true,
+ 	'tabfocus_elements' => 'content-html,save-post',
+ 	'editor_height' => 300,
 Index: src/wp-admin/js/editor-expand.js
 ===================================================================
---- src/wp-admin/js/editor-expand.js	(revision 30163)
+--- src/wp-admin/js/editor-expand.js	(revision 30177)
 +++ src/wp-admin/js/editor-expand.js	(working copy)
 @@ -1,409 +1,357 @@
 -/* global tinymce */
@@ -705,7 +717,7 @@ Index: src/wp-admin/js/editor-expand.js
  					$tools.css( {
  						position: 'absolute',
  						top: 0,
-@@ -423,311 +371,777 @@
+@@ -423,311 +371,797 @@
  						top: heights.menuBarHeight,
  						width: contentWrapWidth - ( borderWidth * 2 ) - ( visual ? 0 : ( $top.outerWidth() - $top.width() ) )
  					} );
@@ -1092,7 +1104,8 @@ Index: src/wp-admin/js/editor-expand.js
 +						adjust();
 +						window.scrollBy( 0, 1 );
 +					}
-+
+ 
+-				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
 +					adjust();
 +				}).on( 'wp-window-resized.editor-expand', function() {
 +					if ( mceEditor && ! mceEditor.isHidden() ) {
@@ -1101,8 +1114,7 @@ Index: src/wp-admin/js/editor-expand.js
 +						textEditorResize();
 +					}
 +				});
- 
--				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
++
 +			$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
 +			$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
 +			mceBind();
@@ -1143,10 +1155,7 @@ Index: src/wp-admin/js/editor-expand.js
 +			}
 +
 +			$wrap.removeClass( 'wp-editor-expand' );
- 
--	function initialResize( callback ) {
--		for ( var i = 1; i < 6; i++ ) {
--			setTimeout( callback, 500 * i );
++
 +			$window.off( '.editor-expand' );
 +			$document.off( '.editor-expand' );
 +			$textEditor.off( '.editor-expand' );
@@ -1161,7 +1170,10 @@ Index: src/wp-admin/js/editor-expand.js
 +			});
 +
 +			fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
-+
+ 
+-	function initialResize( callback ) {
+-		for ( var i = 1; i < 6; i++ ) {
+-			setTimeout( callback, 500 * i );
 +			if ( mceEditor ) {
 +				mceEditor.settings.wp_autoresize_on = false;
 +				mceEditor.execCommand( 'wpAutoResizeOff' );
@@ -1242,14 +1254,14 @@ Index: src/wp-admin/js/editor-expand.js
 +				.add( $slug.find( 'button' ) )
 +				.add( $slug.find( 'input' ) ),
 +			$menuWrap = $( '#adminmenuwrap' ),
-+			$textButton = $(),
++			// $textButton = $(),
 +			$editorWindow = $(),
 +			$editorIframe = $(),
 +			mceBind = function() {},
 +			mceUnbind = function() {},
 +			dfw = window.getUserSetting( 'dfw' ),
-+			isActive = window.getUserSetting( 'editor_expand' ) === 'on',
-+			isOn = isActive ? dfw ? !! parseInt( dfw, 10 ) : true : false,
++			_isActive = window.getUserSetting( 'editor_expand' ) === 'on',
++			_isOn = _isActive ? dfw ? !! parseInt( dfw, 10 ) : true : false,
 +			traveledX = 0,
 +			traveledY = 0,
 +			buffer = 20,
@@ -1291,9 +1303,9 @@ Index: src/wp-admin/js/editor-expand.js
 -				}
 -			});
 +		// Wait for quicktags to initialize.
-+		setTimeout( function() {
-+			$textButton = $( '#qt_content_fullscreen' ).toggleClass( 'active', isOn ).on( 'click.focus', toggle );
-+		}, 300 );
++		// setTimeout( function() {
++		// 	$textButton = $( '#qt_content_fullscreen' ).toggleClass( 'active', _isOn ).on( 'click.focus', toggle );
++		// }, 300 );
  
 -		$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
 -		$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
@@ -1301,101 +1313,113 @@ Index: src/wp-admin/js/editor-expand.js
 +		$window.on( 'mousemove.focus', function( event ) {
 +			mouseY = event.pageY;
 +		} );
-+
-+		function activate() {
-+			if ( ! isActive ) {
-+				isActive = true;
-+
-+				button.disabled( false );
-+			}
-+		}
  
 -		// Adjust when entering/exiting fullscreen mode.
 -		fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
-+		function deactivate() {
-+			if ( isActive ) {
-+				off();
++		function activate() {
++			if ( ! _isActive ) {
++				_isActive = true;
  
 -		if ( mceEditor ) {
 -			mceEditor.settings.wp_autoresize_on = true;
 -			mceEditor.execCommand( 'wpAutoResizeOn' );
-+				isActive = false;
++				button.disabled( false );
++			}
++		}
  
 -			if ( ! mceEditor.isHidden() ) {
 -				mceEditor.execCommand( 'wpAutoResize' );
++		function deactivate() {
++			if ( _isActive ) {
++				off();
++
++				_isActive = false;
++
 +				button.disabled( true );
  			}
  		}
  
 -		if ( ! mceEditor || mceEditor.isHidden() ) {
 -			textEditorResize();
-+		function on() {
-+			if ( ! isOn && isActive ) {
-+				isOn = true;
-+
-+				mceBind();
-+
-+				$content.on( 'keydown.focus', fadeOut );
-+
-+				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
-+
-+				fadeOut();
-+
-+				window.setUserSetting( 'dfw', '1' );
-+
-+				$textButton.addClass( 'active' );
-+			}
++		function isActive() {
++			return _isActive;
  		}
  
 -		adjust();
 -	}
-+		function off() {
-+			if ( isOn ) {
-+				isOn = false;
++		function on() {
++			if ( ! _isOn && _isActive ) {
++				_isOn = true;
 +
-+				mceUnbind();
++				mceBind();
 +
-+				$title.add( $content ).off( '.focus' );
-+
-+				fadeIn();
++				$content.on( 'keydown.focus', fadeOut );
  
 -	function off() {
 -		var height = window.getUserSetting('ed_size');
-+				$editor.off( '.focus' );
++				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
  
 -		// Scroll to the top when triggering this from JS.
 -		// Ensures toolbars are reset properly.
 -		if ( window.pageYOffset && window.pageYOffset > pageYOffsetAtTop ) {
 -			window.scrollTo( window.pageXOffset, 0 );
-+				window.setUserSetting( 'dfw', '0' );
++				fadeOut();
 +
-+				$textButton.removeClass( 'active' );
++				window.setUserSetting( 'dfw', '1' );
++
++				// $textButton.addClass( 'active' );
 +			}
  		}
  
 -		$wrap.removeClass( 'wp-editor-expand' );
-+		function toggle() {
-+			( isOn ? off : on )();
-+		}
++		function off() {
++			if ( _isOn ) {
++				_isOn = false;
  
 -		$window.off( '.editor-expand' );
 -		$document.off( '.editor-expand' );
 -		$textEditor.off( '.editor-expand' );
 -		mceUnbind();
-+		function fadeOut( event ) {
-+			var key = event && event.keyCode;
++				mceUnbind();
  
 -		// Adjust when entering/exiting fullscreen mode.
 -		fullscreen && fullscreen.pubsub.unsubscribe( 'hidden', fullscreenHide );
-+			if ( key === 27 ) {
-+				fadeIn();
-+				return;
-+			}
++				$title.add( $content ).off( '.focus' );
  
 -		// Reset all css
 -		$.each( [ $visualTop, $textTop, $tools, $menuBar, $bottom, $statusBar, $contentWrap, $visualEditor, $textEditor, $sideSortables ], function( i, element ) {
 -			element && element.attr( 'style', '' );
 -		});
++				fadeIn();
++
++				$editor.off( '.focus' );
+ 
+-		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
++				window.setUserSetting( 'dfw', '0' );
+ 
+-		if ( mceEditor ) {
+-			mceEditor.settings.wp_autoresize_on = false;
+-			mceEditor.execCommand( 'wpAutoResizeOff' );
++				// $textButton.removeClass( 'active' );
++			}
++		}
++
++		function toggle() {
++			( _isOn ? off : on )();
++		}
++
++		function isOn() {
++			return _isOn;
++		}
++
++		function fadeOut( event ) {
++			var key = event && event.keyCode;
++
++			if ( key === 27 ) {
++				fadeIn();
++				return;
++			}
++
 +			if ( key && (
 +				// Special keys ( tab, ctrl, alt, esc, arrow keys... )
 +				( key <= 47 && key !== 8 && key !== 13 && key !== 32 && key !== 46 ) ||
@@ -1415,8 +1439,7 @@ Index: src/wp-admin/js/editor-expand.js
 +				faded = true;
 +
 +				clearTimeout( overlayTimer );
- 
--		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
++
 +				overlayTimer = setTimeout( function() {
 +					$overlay.show();
 +				}, 600 );
@@ -1442,7 +1465,9 @@ Index: src/wp-admin/js/editor-expand.js
 +							) ) {
 +								fadeIn();
 +							}
-+
+ 
+-			if ( ! mceEditor.isHidden() ) {
+-				$textEditor.hide();
 +							scrollY = nScrollY;
 +						} );
 +					} )
@@ -1487,10 +1512,7 @@ Index: src/wp-admin/js/editor-expand.js
 +								traveledX = traveledY = 0;
 +							}
 +						}
- 
--		if ( mceEditor ) {
--			mceEditor.settings.wp_autoresize_on = false;
--			mceEditor.execCommand( 'wpAutoResizeOff' );
++
 +						x = nx;
 +						y = ny;
 +					} )
@@ -1500,12 +1522,10 @@ Index: src/wp-admin/js/editor-expand.js
 +						fadeIn();
 +					} );
  
--			if ( ! mceEditor.isHidden() ) {
--				$textEditor.hide();
-+				$editor.off( 'mouseenter.focus' );
- 
 -				if ( height ) {
 -					mceEditor.theme.resizeTo( null, height );
++				$editor.off( 'mouseenter.focus' );
++
 +				if ( focusLostTimer ) {
 +					clearTimeout( focusLostTimer );
 +					focusLostTimer = null;
@@ -1576,7 +1596,6 @@ Index: src/wp-admin/js/editor-expand.js
 -			initialResize( function() {
 -				adjust();
 -				textEditorResize();
--			} );
 +				function hasFocus( $el ) {
 +					return $.contains( $el.get( 0 ), document.activeElement );
 +				}
@@ -1586,27 +1605,8 @@ Index: src/wp-admin/js/editor-expand.js
 +					fadeIn();
 +				}
 +			}, 0 );
- 		}
--	}
- 
--	// Show the on/off checkbox
--	$( '#adv-settings .editor-expand' ).show();
--	$( '#editor-expand-toggle' ).on( 'change.editor-expand', function() {
--		if ( $(this).prop( 'checked' ) ) {
--			on();
--			window.setUserSetting( 'editor_expand', 'on' );
--		} else {
--			off();
--			window.setUserSetting( 'editor_expand', 'off' );
--		}
--	});
--
--	// Expose on() and off()
--	window.editorExpand = {
--		on: on,
--		off: off
--	};
--});
++		}
++
 +		function fadeOutAdminBar() {
 +			if ( ! fadedAdminBar && faded ) {
 +				fadedAdminBar = true;
@@ -1652,13 +1652,13 @@ Index: src/wp-admin/js/editor-expand.js
 +		$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
 +			editor.addButton( 'dfw', {
 +				classes: 'wp-dfw btn widget',
-+				disabled: ! isActive,
++				disabled: ! _isActive,
 +				onclick: toggle,
 +				onPostRender: function() {
 +					button = this;
 +				},
 +				tooltip: 'Distraction Free Writing'
-+			} );
+ 			} );
 +		} );
 +
 +		$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
@@ -1690,7 +1690,7 @@ Index: src/wp-admin/js/editor-expand.js
 +					editor.off( 'blur', blur );
 +				};
 +
-+				if ( isOn ) {
++				if ( _isOn ) {
 +					mceBind();
 +				}
 +
@@ -1705,198 +1705,122 @@ Index: src/wp-admin/js/editor-expand.js
 +
 +		$document.on( 'editor-expand-on.focus', activate ).on( 'editor-expand-off.focus', deactivate );
 +
-+		if ( isOn ) {
++		if ( _isOn ) {
 +			$content.on( 'keydown.focus', fadeOut );
 +
 +			$title.add( $content ).on( 'blur.focus', maybeFadeIn );
-+		}
+ 		}
+-	}
+ 
+-	// Show the on/off checkbox
+-	$( '#adv-settings .editor-expand' ).show();
+-	$( '#editor-expand-toggle' ).on( 'change.editor-expand', function() {
+-		if ( $(this).prop( 'checked' ) ) {
+-			on();
+-			window.setUserSetting( 'editor_expand', 'on' );
+-		} else {
+-			off();
+-			window.setUserSetting( 'editor_expand', 'off' );
+-		}
+-	});
+-
+-	// Expose on() and off()
+-	window.editorExpand = {
+-		on: on,
+-		off: off
+-	};
+-});
++		window.wp = window.wp || {};
++		window.wp.editor = window.wp.editor || {};
++		window.wp.editor.dfw = {
++			activate: activate,
++			deactivate: deactivate,
++			isActive: isActive,
++			on: on,
++			off: off,
++			toggle: toggle,
++			isOn: isOn
++		};
 +	} );
 +} )( window, window.jQuery );
 Index: src/wp-includes/class-wp-editor.php
 ===================================================================
---- src/wp-includes/class-wp-editor.php	(revision 30163)
+--- src/wp-includes/class-wp-editor.php	(revision 30177)
 +++ src/wp-includes/class-wp-editor.php	(working copy)
-@@ -456,9 +456,6 @@
- 					}
- 				}
+@@ -278,6 +278,9 @@
+ 			if ( $set['dfw'] )
+ 				$qtInit['buttons'] .= ',fullscreen';
  
--				if ( $set['dfw'] )
--					$plugins[] = 'wpfullscreen';
--
- 				self::$plugins = $plugins;
- 				self::$ext_plugins = $ext_plugins;
++			if ( $editor_id === 'content' )
++				$qtInit['buttons'] .= ',dfw';
++
+ 			/**
+ 			 * Filter the Quicktags settings.
+ 			 *
+@@ -418,7 +421,7 @@
+ 							$url = set_url_scheme( $url );
+ 							$mce_external_plugins[ $name ] = $url;
+ 							$plugurl = dirname( $url );
+-							$strings = '';
++							$strings = $str1 = $str2 = '';
  
-@@ -555,7 +552,7 @@
+ 							// Try to load langs/[locale].js and langs/[locale]_dlg.js
+ 							if ( ! in_array( $name, $loaded_langs, true ) ) {
+@@ -546,6 +549,13 @@
+ 				$mce_buttons = apply_filters( 'teeny_mce_buttons', array('bold', 'italic', 'underline', 'blockquote', 'strikethrough', 'bullist', 'numlist', 'alignleft', 'aligncenter', 'alignright', 'undo', 'redo', 'link', 'unlink', 'fullscreen'), $editor_id );
+ 				$mce_buttons_2 = $mce_buttons_3 = $mce_buttons_4 = array();
+ 			} else {
++				$mce_buttons = array( 'bold', 'italic', 'strikethrough', 'bullist', 'numlist', 'blockquote', 'hr', 'alignleft', 'aligncenter', 'alignright', 'link', 'unlink', 'wp_more', 'spellchecker', 'wp_adv' );
++
++				if ( $editor_id ) {
++					$mce_buttons[] = 'dfw';
++				} else {
++					$mce_buttons[] = 'fullscreen';
++				}
+ 
+ 				/**
+ 				 * Filter the first-row list of TinyMCE buttons (Visual tab).
+@@ -555,7 +565,7 @@
  				 * @param array  $buttons   First-row list of buttons.
  				 * @param string $editor_id Unique editor identifier, e.g. 'content'.
  				 */
 -				$mce_buttons = apply_filters( 'mce_buttons', array('bold', 'italic', 'strikethrough', 'bullist', 'numlist', 'blockquote', 'hr', 'alignleft', 'aligncenter', 'alignright', 'link', 'unlink', 'wp_more', 'spellchecker', 'fullscreen', 'wp_adv' ), $editor_id );
-+				$mce_buttons = apply_filters( 'mce_buttons', array('bold', 'italic', 'strikethrough', 'bullist', 'numlist', 'blockquote', 'hr', 'alignleft', 'aligncenter', 'alignright', 'link', 'unlink', 'wp_more', 'spellchecker', 'wp_adv', 'dfw' ), $editor_id );
++				$mce_buttons = apply_filters( 'mce_buttons', $mce_buttons, $editor_id );
  
  				/**
  				 * Filter the second-row list of TinyMCE buttons (Visual tab).
-@@ -608,18 +605,6 @@
- 				unset($set['tinymce']['body_class']);
- 			}
- 
--			if ( $set['dfw'] ) {
--				// replace the first 'fullscreen' with 'wp_fullscreen'
--				if ( ($key = array_search('fullscreen', $mce_buttons)) !== false )
--					$mce_buttons[$key] = 'wp_fullscreen';
--				elseif ( ($key = array_search('fullscreen', $mce_buttons_2)) !== false )
--					$mce_buttons_2[$key] = 'wp_fullscreen';
--				elseif ( ($key = array_search('fullscreen', $mce_buttons_3)) !== false )
--					$mce_buttons_3[$key] = 'wp_fullscreen';
--				elseif ( ($key = array_search('fullscreen', $mce_buttons_4)) !== false )
--					$mce_buttons_4[$key] = 'wp_fullscreen';
--			}
--
- 			$mceInit = array (
- 				'selector' => "#$editor_id",
- 				'resize' => 'vertical',
-@@ -714,9 +699,6 @@
- 			wp_enqueue_script('wplink');
- 		}
- 
--		if ( in_array('wpfullscreen', self::$plugins, true) || in_array('fullscreen', self::$qt_buttons, true) )
--			wp_enqueue_script('wp-fullscreen');
--
- 		if ( self::$has_medialib ) {
- 			add_thickbox();
- 			wp_enqueue_script('media-upload');
-@@ -1168,9 +1150,6 @@
- 		if ( in_array( 'wplink', self::$plugins, true ) || in_array( 'link', self::$qt_buttons, true ) )
- 			self::wp_link_dialog();
- 
--		if ( in_array( 'wpfullscreen', self::$plugins, true ) || in_array( 'fullscreen', self::$qt_buttons, true ) )
--			self::wp_fullscreen_html();
--
- 		/**
- 		 * Fires after any core TinyMCE editor instances are created.
- 		 *
-@@ -1181,99 +1160,6 @@
- 		do_action( 'after_wp_tiny_mce', self::$mce_settings );
- 	}
- 
--	public static function wp_fullscreen_html() {
--		global $content_width;
--		$post = get_post();
--
--		$width = isset( $content_width ) && 800 > $content_width ? $content_width : 800;
--		$width = $width + 22; // compensate for the padding and border
--		$dfw_width = get_user_setting( 'dfw_width', $width );
--		$save = isset( $post->post_status ) && $post->post_status == 'publish' ? __('Update') : __('Save');
--
--		?>
--		<div id="wp-fullscreen-body" class="wp-core-ui<?php if ( is_rtl() ) echo ' rtl'; ?>" data-theme-width="<?php echo (int) $width; ?>" data-dfw-width="<?php echo (int) $dfw_width; ?>">
--		<div id="fullscreen-topbar">
--			<div id="wp-fullscreen-toolbar">
--			<div id="wp-fullscreen-close"><a href="#" onclick="wp.editor.fullscreen.off();return false;"><?php _e('Exit fullscreen'); ?></a></div>
--			<div id="wp-fullscreen-central-toolbar" style="width:<?php echo $width; ?>px;">
--
--			<div id="wp-fullscreen-mode-bar">
--				<div id="wp-fullscreen-modes" class="button-group">
--					<a class="button wp-fullscreen-mode-tinymce" href="#" onclick="wp.editor.fullscreen.switchmode( 'tinymce' ); return false;"><?php _e( 'Visual' ); ?></a>
--					<a class="button wp-fullscreen-mode-html" href="#" onclick="wp.editor.fullscreen.switchmode( 'html' ); return false;"><?php _ex( 'Text', 'Name for the Text editor tab (formerly HTML)' ); ?></a>
--				</div>
--			</div>
--
--			<div id="wp-fullscreen-button-bar"><div id="wp-fullscreen-buttons" class="mce-toolbar">
--		<?php
--
--		$buttons = array(
--			// format: title, onclick, show in both editors
--			'bold' => array( 'title' => __('Bold (Ctrl + B)'), 'both' => false ),
--			'italic' => array( 'title' => __('Italic (Ctrl + I)'), 'both' => false ),
--			'bullist' => array( 'title' => __('Unordered list (Alt + Shift + U)'), 'both' => false ),
--			'numlist' => array( 'title' => __('Ordered list (Alt + Shift + O)'), 'both' => false ),
--			'blockquote' => array( 'title' => __('Blockquote (Alt + Shift + Q)'), 'both' => false ),
--			'wp-media-library' => array( 'title' => __('Media library (Alt + Shift + M)'), 'both' => true ),
--			'link' => array( 'title' => __('Insert/edit link (Alt + Shift + A)'), 'both' => true ),
--			'unlink' => array( 'title' => __('Unlink (Alt + Shift + S)'), 'both' => false ),
--			'help' => array( 'title' => __('Help (Alt + Shift + H)'), 'both' => false ),
--		);
--
--		/**
--		 * Filter the list of TinyMCE buttons for the fullscreen
--		 * 'Distraction Free Writing' editor.
--		 *
--		 * @since 3.2.0
--		 *
--		 * @param array $buttons An array of TinyMCE buttons for the DFW editor.
--		 */
--		$buttons = apply_filters( 'wp_fullscreen_buttons', $buttons );
--
--		foreach ( $buttons as $button => $args ) {
--			if ( 'separator' == $args ) {
--				continue;
--			}
--
--			$onclick = ! empty( $args['onclick'] ) ? ' onclick="' . $args['onclick'] . '"' : '';
--			$title = esc_attr( $args['title'] );
--			?>
--
--			<div class="mce-widget mce-btn<?php if ( $args['both'] ) { ?> wp-fullscreen-both<?php } ?>">
--			<button type="button" aria-label="<?php echo $title; ?>" title="<?php echo $title; ?>"<?php echo $onclick; ?> id="wp_fs_<?php echo $button; ?>">
--				<i class="mce-ico mce-i-<?php echo $button; ?>"></i>
--			</button>
--			</div>
--			<?php
--		}
--
--		?>
--
--		</div></div>
--
--		<div id="wp-fullscreen-save">
--			<input type="button" class="button button-primary right" value="<?php echo $save; ?>" onclick="wp.editor.fullscreen.save();" />
--			<span class="wp-fullscreen-saved-message"><?php if ( $post->post_status == 'publish' ) _e('Updated.'); else _e('Saved.'); ?></span>
--			<span class="wp-fullscreen-error-message"><?php _e('Save failed.'); ?></span>
--			<span class="spinner"></span>
--		</div>
--
--		</div>
--		</div>
--	</div>
--	<div id="wp-fullscreen-statusbar">
--		<div id="wp-fullscreen-status">
--			<div id="wp-fullscreen-count"><?php printf( __( 'Word count: %s' ), '<span class="word-count">0</span>' ); ?></div>
--			<div id="wp-fullscreen-tagline"><?php _e('Just write.'); ?></div>
--		</div>
--	</div>
--	</div>
--
--	<div class="fullscreen-overlay" id="fullscreen-overlay"></div>
--	<div class="fullscreen-overlay fullscreen-fader fade-300" id="fullscreen-fader"></div>
--	<?php
--	}
--
- 	/**
- 	 * Performs post queries for internal linking.
- 	 *
 Index: src/wp-includes/css/editor.css
 ===================================================================
---- src/wp-includes/css/editor.css	(revision 30163)
+--- src/wp-includes/css/editor.css	(revision 30177)
 +++ src/wp-includes/css/editor.css	(working copy)
-@@ -192,7 +192,6 @@
- 	cursor: pointer;
+@@ -183,7 +183,7 @@
  }
  
--#wp-fullscreen-buttons .mce-btn,
+ .mce-toolbar .mce-btn,
+-.qt-fullscreen {
++.qt-dfw {
+ 	border-color: transparent;
+ 	background: transparent;
+ 	-webkit-box-shadow: none;
+@@ -194,7 +194,7 @@
+ 
+ #wp-fullscreen-buttons .mce-btn,
  .mce-toolbar .mce-btn-group .mce-btn,
- .qt-fullscreen {
+-.qt-fullscreen {
++.qt-dfw {
  	border: 1px solid transparent;
-@@ -204,9 +203,7 @@
- 	filter: none;
- }
- 
--#wp-fullscreen-buttons .mce-btn:hover,
+ 	margin: 2px;
+ 	background-image: none;
+@@ -208,19 +208,21 @@
  .mce-toolbar .mce-btn-group .mce-btn:hover,
--#wp-fullscreen-buttons .mce-btn:focus,
+ #wp-fullscreen-buttons .mce-btn:focus,
  .mce-toolbar .mce-btn-group .mce-btn:focus,
- .qt-fullscreen:hover,
- .qt-fullscreen:focus {
-@@ -215,12 +212,12 @@
+-.qt-fullscreen:hover,
+-.qt-fullscreen:focus {
++.qt-dfw:hover,
++.qt-dfw:focus {
+ 	background: #fafafa;
+ 	border-color: #999;
  	color: #222;
  	-webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
  	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
@@ -1904,60 +1828,86 @@ Index: src/wp-includes/css/editor.css
  }
  
  .mce-toolbar .mce-btn-group .mce-btn.mce-active,
--#wp-fullscreen-buttons .mce-btn.mce-active,
+ #wp-fullscreen-buttons .mce-btn.mce-active,
  .mce-toolbar .mce-btn-group .mce-btn:active,
 -#wp-fullscreen-buttons .mce-btn:active {
-+.qt-fullscreen.active {
++#wp-fullscreen-buttons .mce-btn:active,
++.qt-dfw.active {
  	background: #ebebeb;
  	border-color: #999;
  	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
-@@ -236,9 +233,7 @@
+@@ -253,7 +255,7 @@
  }
  
- .mce-toolbar .mce-btn-group .mce-btn.mce-disabled:hover,
--#wp-fullscreen-buttons .mce-btn.mce-disabled:hover,
--.mce-toolbar .mce-btn-group .mce-btn.mce-disabled:focus,
--#wp-fullscreen-buttons .mce-btn.mce-disabled:focus {
-+.mce-toolbar .mce-btn-group .mce-btn.mce-disabled:focus {
- 	color: #aaa;
- 	background: none;
- 	border-color: #ddd;
-@@ -601,7 +596,7 @@
- i.mce-i-strikethrough,
+ .mce-toolbar .mce-btn button,
+-.qt-fullscreen {
++.qt-dfw {
+ 	padding: 2px 3px;
+ 	line-height: normal;
+ }
+@@ -568,7 +570,7 @@
+ 	padding: 0;
+ }
+ 
+-.qt-fullscreen {
++.qt-dfw {
+ 	color: #777;
+ 	line-height: 20px;
+ 	width: 28px;
+@@ -602,6 +604,7 @@
  i.mce-i-spellchecker,
  i.mce-i-fullscreen,
--i.mce-i-wp_fullscreen,
+ i.mce-i-wp_fullscreen,
 +i.mce-i-dfw,
  i.mce-i-wp_adv,
  i.mce-i-underline,
  i.mce-i-alignjustify,
-@@ -693,7 +688,7 @@
+@@ -632,7 +635,7 @@
+ 	padding-right: 2px;
  }
  
+-.qt-fullscreen {
++.qt-dfw {
+ 	font: normal 20px/1 'dashicons';
+ 	vertical-align: top;
+ 	speak: none;
+@@ -694,7 +697,8 @@
+ 
  i.mce-i-fullscreen:before,
--i.mce-i-wp_fullscreen:before,
+ i.mce-i-wp_fullscreen:before,
+-.qt-fullscreen:before {
 +i.mce-i-dfw:before,
- .qt-fullscreen:before {
++.qt-dfw:before {
  	content: '\f211';
  }
-@@ -970,7 +965,7 @@
+ 
+@@ -970,8 +974,8 @@
  	font-weight: bold;
  }
  
 -.mce-toolbar .mce-btn-group .mce-btn.mce-wp-fullscreen,
+-.qt-fullscreen {
 +.mce-toolbar .mce-btn-group .mce-btn.mce-wp-dfw,
- .qt-fullscreen {
++.qt-dfw {
  	position: absolute;
  	top: 0;
-@@ -984,7 +979,6 @@
+ 	right: 0;
+@@ -980,7 +984,7 @@
+ 
+ @media screen and ( max-width: 782px ) {
+ 	.mce-toolbar .mce-btn button,
+-	.qt-fullscreen {
++	.qt-dfw {
  		padding: 6px 7px;
  	}
  
--	#wp-fullscreen-buttons .mce-btn,
- 	.mce-toolbar .mce-btn-group .mce-btn {
+@@ -989,12 +993,12 @@
  		margin: 1px;
  	}
-@@ -994,7 +988,7 @@
+ 
+-	.qt-fullscreen {
++	.qt-dfw {
+ 		width: 36px;
  		height: 34px;
  	}
  
@@ -1966,441 +1916,55 @@ Index: src/wp-includes/css/editor.css
  		margin: 4px 4px 0 0;
  	}
  
-@@ -1569,409 +1563,62 @@
- 	color: #2ea2cc;
- }
- */
--/* Distraction Free Writing mode
-- * =Overlay Styles
---------------------------------------------------------------- */
--.fullscreen-overlay {
--	z-index: 100005;
--	display: none;
--	position: fixed;
--	top: 0;
--	bottom: 0;
--	left: 0;
--	right: 0;
--	-webkit-filter: inherit;
--	filter: inherit;
--}
--
--.wp-fullscreen-active .fullscreen-overlay,
--.wp-fullscreen-active #wp-fullscreen-body {
--	display: block;
--}
- 
--.fullscreen-fader {
--	z-index: 200000;
--}
--
--.wp-fullscreen-active .fullscreen-fader,
--.wp-core-ui.wp-fullscreen-active .postbox-container {
--	display: none;
--}
--
--/* =Overlay Body
---------------------------------------------------------------- */
--
--#wp-fullscreen-body,
- .mce-fullscreen {
- 	z-index: 100010;
+@@ -2008,3 +2012,56 @@
  }
  
--#wp-fullscreen-body {
--	display: none;
--}
--
--.wp-fullscreen-wrap {
--	margin: 0;
--	padding: 0;
--	position: absolute;
--	left: 0;
--	right: 0;
--	bottom: 30px;
--	top: 60px;
--	z-index: 100015;
--}
--
--.wp-fullscreen-wrap .wp-editor-container,
--.wp-fullscreen-title,
--#wp-fullscreen-central-toolbar {
--	-webkit-box-sizing: border-box;
--	-moz-box-sizing: border-box;
--	box-sizing: border-box;
--	max-width: 100%;
--}
--
--.wp-fullscreen-active .wp-editor-tools,
--.wp-fullscreen-active .quicktags-toolbar,
--.wp-fullscreen-active .mce-toolbar-grp,
--.wp-fullscreen-active .mce-statusbar {
--	display: none;
--}
--
--#wp-fullscreen-statusbar {
--	position: fixed;
--	left: 0;
--	right: 0;
--	bottom: 0;
--	height: 30px;
--	z-index: 100020;
--	background: #fff;
--	-webkit-transition: height 0.2s;
--	transition: height 0.2s;
--}
--
--#wp-fullscreen-status {
--	margin: 0 auto;
--	padding: 0;
--}
--
--.wp-fullscreen-active .wp-fullscreen-title,
--.wp-fullscreen-active .wp-fullscreen-title:focus,
--.wp-fullscreen-active .wp-editor-container {
--	-webkit-border-radius: 0;
--	border-radius: 0;
--	border: 1px dashed transparent;
--	background: transparent;
--	-webkit-box-shadow: none;
--	box-shadow: none;
--	-webkit-transition: border-color 0.4s;
--	transition: border-color 0.4s;
--}
--
--.wp-fullscreen-active .wp-editor-container {
--	margin: 0 auto 40px;
--}
--
--.wp-fullscreen-active .wp-fullscreen-title {
--	font-size: 1.7em;
--	line-height: 100%;
--	outline: medium none;
--	padding: 3px 7px;
--	margin: 10px auto 30px;
--	display: block;
--}
--
--#wp-fullscreen-tagline {
--	color: #888;
--	font-size: 18px;
--	float: right;
--	padding: 4px 0 0;
--}
--
--/* =Top bar
-+/* =DFW
- -------------------------------------------------------------- */
--#fullscreen-topbar {
--	background: #f5f5f5;
--	border-bottom: 1px solid #dedede;
--	height: 45px;
--	position: fixed;
--	left: 0;
--	right: 0;
--	top: 0;
--	width: 100%;
--	z-index: 100020;
--	-webkit-transition: opacity 0.4s;
--	transition: opacity 0.4s;
--}
--
--#wp-fullscreen-toolbar {
--	padding: 6px 10px 0;
--	clear: both;
--	max-width: 1100px;
--	margin: 0 auto;
--}
--
--#wp-fullscreen-mode-bar,
--#wp-fullscreen-button-bar,
--#wp-fullscreen-close {
--	float: left;
--}
--
--#wp-fullscreen-count,
--#wp-fullscreen-tagline {
--	display: inline-block;
--}
- 
--#wp-fullscreen-button-bar {
--	margin-top: 2px;
--}
--
--#wp-fullscreen-save {
--	float: right;
--	padding: 2px 0 0;
--	min-width: 95px;
--}
--
--#wp-fullscreen-count,
--#wp-fullscreen-close {
--	padding: 5px 0 0;
--}
--
--#wp-fullscreen-central-toolbar {
--	margin: auto;
--	padding: 0;
--	min-width: 620px;
--}
--
--#wp-fullscreen-buttons > div {
--	float: left;
--}
--
--#wp-fullscreen-mode-bar {
--	padding: 3px 14px 0 0;
--}
--
--#wp-fullscreen-buttons .hidden {
--	display: none;
--}
--
--#wp-fullscreen-buttons .disabled {
--	opacity: 0.5;
--}
--
--#wp-fullscreen-buttons .mce-btn button {
--    margin: 0;
--    outline: 0 none;
--    border: 0 none;
--    white-space: nowrap;
--    width: auto;
--    background: none;
--	color: #333333;
--    cursor: pointer;
--    font-size: 18px;
--    line-height: 20px;
--    overflow: visible;
--    text-align: center;
--    -webkit-box-sizing: border-box;
--    -moz-box-sizing: border-box;
--    box-sizing: border-box;
--}
--
--.wp-html-mode #wp-fullscreen-buttons div {
--	display: none;
--}
--
--.wp-html-mode #wp-fullscreen-buttons div.wp-fullscreen-both {
--	display: block;
--}
--
--#wp-fullscreen-save img {
--	vertical-align: middle;
--}
--
--#wp-fullscreen-save span {
--	display: none;
--	margin: 5px 6px 0;
--	float: left;
--}
--
--/* =Thickbox Adjustments
---------------------------------------------------------------- */
--.wp-fullscreen-active #TB_overlay {
--	z-index: 100050;
--}
--
--.wp-fullscreen-active #TB_window {
--	z-index: 100051;
--}
--
--/* Colors */
--.fullscreen-overlay {
--	background: #fff;
--}
--
--/* =CSS 3 transitions
---------------------------------------------------------------- */
--
--.wp-fullscreen-active #fullscreen-topbar {
--	-webkit-transition-duration: 0.8s;
--	transition-duration: 0.8s;
+ /* TODO: DFW responsive */
++
++/* DFW 2
++-------------------------------------------------------------- */
++
 +.focus-on .wrap > h2,
 +.focus-on #wpfooter,
 +.focus-on .postbox-container,
 +.focus-on div.updated,
 +.focus-on div.error,
 +.focus-on #wp-toolbar {
- 	opacity: 0;
--	filter: alpha(opacity=0);
--}
--
--.wp-fullscreen-active #wp-fullscreen-statusbar {
--	height: 0;
++	opacity: 0;
 +	transition-duration: 0.6s;
 +	transition-property: opacity;
 +	transition-timing-function: ease-in-out;
- }
- 
--.wp-fullscreen-active.wp-dfw-show-ui #fullscreen-topbar {
--	-webkit-transition-duration: 0.4s;
--	transition-duration: 0.4s;
++}
++
 +.focus-off .wrap > h2,
 +.focus-off #wpfooter,
 +.focus-off .postbox-container,
 +.focus-off div.updated,
 +.focus-off div.error,
 +.focus-off #wp-toolbar {
- 	opacity: 1;
--	filter: alpha(opacity=100);
--}
--
--.wp-fullscreen-active.wp-dfw-show-ui #wp-fullscreen-statusbar {
--	height: 29px;
--	background: #f8f8f8;
--	border-top: 1px solid #eee;
--}
--
--.wp-fullscreen-active .wp-fullscreen-title,
--.wp-fullscreen-active .wp-editor-container {
--	-webkit-transition-duration: 0.8s;
--	transition-duration: 0.8s;
--	border-color: transparent;
--}
--
--.wp-fullscreen-active.wp-dfw-show-ui .wp-fullscreen-title,
--.wp-fullscreen-active.wp-dfw-show-ui .wp-editor-container {
--	-webkit-transition-duration: 0.4s;
--	transition-duration: 0.4s;
--	border-color: #ccc;
--}
--
--.fade-1000,
--.fade-600,
--.fade-400,
--.fade-300 {
--	opacity: 0;
--	-webkit-transition-property: opacity;
++	opacity: 1;
 +	transition-duration: 0.2s;
- 	transition-property: opacity;
++	transition-property: opacity;
 +	transition-timing-function: ease-in-out;
- }
- 
--.fade-1000 {
--	-webkit-transition-duration: 1s;
--	transition-duration: 1s;
--}
--
--.fade-600 {
--	-webkit-transition-duration: 0.6s;
++}
++
 +.focus-on #adminmenuback,
 +.focus-on #adminmenuwrap,
 +.focus-on .screen-meta-toggle {
- 	transition-duration: 0.6s;
++	transition-duration: 0.6s;
 +	transition-property: transform;
 +	transition-timing-function: ease-in-out;
- }
- 
--.fade-400 {
--	-webkit-transition-duration: 0.4s;
--	transition-duration: 0.4s;
--}
--
--.fade-300 {
--	-webkit-transition-duration: 0.3s;
--	transition-duration: 0.3s;
++}
++
 +.focus-on #adminmenuback,
 +.focus-on #adminmenuwrap {
 +	transform: translateX( -100% );
- }
- 
--.fade-trigger {
--	opacity: 1;
--}
--
--/* DFW on touch screen devices */
--.wp-dfw-touch #fullscreen-topbar {
--	position: absolute;
--	opacity: 1;
--}
--
--.wp-dfw-touch .wp-fullscreen-wrap .wp-editor-container,
--.wp-dfw-touch .wp-fullscreen-title {
--	max-width: 700px;
--}
--
--.wp-fullscreen-active.wp-dfw-touch  .wp-fullscreen-title,
--.wp-fullscreen-active.wp-dfw-touch .wp-editor-container {
--	border-color: #ccc;
--}
--
--.wp-dfw-touch #wp-fullscreen-statusbar {
--	height: 30px;
--}
--
--@media screen and ( max-width: 782px ) {
--	#wp-fullscreen-close,
--	#wp-fullscreen-central-toolbar,
--	#wp-fullscreen-mode-bar,
--	#wp-fullscreen-button-bar,
--	#wp-fullscreen-save {
--		display: inline-block;
--	}
--
--	#fullscreen-topbar {
--		height: 85px;
--	}
--
--	#wp-fullscreen-central-toolbar {
--		width: auto !important;
--		min-width: 0;
--	}
--
--	#wp-fullscreen-close {
--		line-height: 30px;
--		vertical-align: top;
--		padding: 0 12px;
--	}
--
--	#wp-fullscreen-button-bar {
--		position: absolute;
--		top: 45px;
--		left: 0;
--	}
--
--	.wp-fullscreen-wrap {
--		top: 95px;
--	}
--
--	#wp-fullscreen-save {
--		position: absolute;
--		right: 10px;
--	}
++}
++
 +.focus-on .screen-meta-toggle {
 +	transform: translateY( -100% );
- }
- 
--@media screen and ( max-width: 480px ) {
--	#wp_fs_help {
--		display: none;
--	}
--
--	.wp-fullscreen-wrap .wp-editor-container,
--	.wp-fullscreen-title {
--		width: 480px !important;
--	}
--
--	body.wp-fullscreen-active {
--		width: 480px;
--		overflow: auto;
--	}
--
--	#fullscreen-topbar,
--	.wp-fullscreen-wrap {
--		width: 480px;
--	}
--
--	#fullscreen-topbar {
--		position: absolute;
--	}
--
--	#wp-fullscreen-status {
--		width: auto !important;
--		max-width: 100%;
--		padding: 0 10px;
--	}
++}
++
 +.focus-off #adminmenuback,
 +.focus-off #adminmenuwrap,
 +.focus-off .screen-meta-toggle {
@@ -2408,16 +1972,92 @@ Index: src/wp-includes/css/editor.css
 +	transition-duration: 0.2s;
 +	transition-property: transform;
 +	transition-timing-function: ease-in-out;
- }
++}
+Index: src/wp-includes/js/quicktags.js
+===================================================================
+--- src/wp-includes/js/quicktags.js	(revision 30177)
++++ src/wp-includes/js/quicktags.js	(working copy)
+@@ -288,6 +288,10 @@
+ 				html += theButtons.fullscreen.html(name + '_');
+ 			}
  
- /* =Localization
-@@ -2001,8 +1648,7 @@
-   (-o-min-device-pixel-ratio: 5/4),
-   (-webkit-min-device-pixel-ratio: 1.25),
-   (min-resolution: 120dpi) {
--	.wp-media-buttons .add_media span.wp-media-buttons-icon,
--	#wp-fullscreen-buttons #wp_fs_image span.mce_image {
-+	.wp-media-buttons .add_media span.wp-media-buttons-icon {
- 		background: none;
- 	}
- }
++			if ( use && use.indexOf(',dfw,') !== -1 ) {
++				theButtons.dfw = new qt.DFWButton();
++				html += theButtons.dfw.html( name + '_' );
++			}
+ 
+ 			if ( 'rtl' === document.getElementsByTagName('html')[0].dir ) {
+ 				theButtons.textdirection = new qt.TextDirectionButton();
+@@ -405,11 +409,17 @@
+ 		t.instance = instance || '';
+ 	};
+ 	qt.Button.prototype.html = function(idPrefix) {
+-		var title = this.title ? ' title="' + this.title + '"' : '';
++		var title = this.title ? ' title="' + this.title + '"' : '',
++			active, wp;
+ 
+ 		if ( this.id === 'fullscreen' ) {
+-			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-fullscreen"' + title + '></button>';
++			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-dfw"' + title + '></button>';
++		} else if ( this.id === 'dfw' ) {
++			active = ( wp = window.wp ) && wp.editor && wp.editor.dfw && wp.editor.dfw.isActive() ? ' active' : '';
++
++			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-dfw' + active + '"' + title + '></button>';
+ 		}
++
+ 		return '<input type="button" id="' + idPrefix + this.id + '" class="ed_button button button-small"' + title + ' value="' + this.display + '" />';
+ 	};
+ 	qt.Button.prototype.callback = function(){};
+@@ -619,6 +629,24 @@
+ 		wp.editor.fullscreen.on();
+ 	};
+ 
++	qt.DFWButton = function() {
++		qt.Button.call( this, 'dfw', quicktagsL10n.dfw, 'f', quicktagsL10n.toggleFullscreen );
++	};
++	qt.DFWButton.prototype = new qt.Button();
++	qt.DFWButton.prototype.callback = function( button ) {
++		var wp;
++
++		if ( ! ( wp = window.wp ) || ! wp.editor || ! wp.editor.dfw ) {
++			return;
++		}
++
++		if ( window.jQuery ) {
++			window.jQuery( button ).toggleClass( 'active' );
++		}
++
++		window.wp.editor.dfw.toggle();
++	};
++
+ 	qt.TextDirectionButton = function() {
+ 		qt.Button.call(this, 'textdirection', quicktagsL10n.textdirection, '', quicktagsL10n.toggleTextdirection);
+ 	};
+Index: src/wp-includes/js/tinymce/plugins/wordpress/plugin.js
+===================================================================
+--- src/wp-includes/js/tinymce/plugins/wordpress/plugin.js	(revision 30177)
++++ src/wp-includes/js/tinymce/plugins/wordpress/plugin.js	(working copy)
+@@ -7,6 +7,10 @@
+ 	var DOM = tinymce.DOM, wpAdvButton, modKey, style,
+ 		last = 0;
+ 
++	if ( typeof window.jQuery !== 'undefined' ) {
++		window.jQuery( document ).triggerHandler( 'tinymce-editor-setup', [ editor ] );
++	}
++
+ 	function toggleToolbars( state ) {
+ 		var iframe, initial, toolbars,
+ 			pixels = 0;
+Index: src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js
+===================================================================
+--- src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(revision 30177)
++++ src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(working copy)
+@@ -65,7 +65,7 @@
+ 		tooltip: 'Distraction Free Writing',
+ 		shortcut: 'Alt+Shift+W',
+ 		onclick: toggleFullscreen,
+-		classes: 'wp-fullscreen btn widget' // This overwrites all classes on the container!
++		classes: 'wp-dfw btn widget' // This overwrites all classes on the container!
+ 	});
+ 
+ 	editor.addMenuItem( 'wp_fullscreen', {

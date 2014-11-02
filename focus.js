@@ -31,7 +31,7 @@ window.jQuery( function( $ ) {
 		editorRect, x, y, mouseY, scrollY, button,
 		focusLostTimer, overlayTimer, editorHasFocus;
 
-	$( document.body ).append( $overlay );
+	$body.append( $overlay );
 
 	$overlay.css( {
 		display: 'none',

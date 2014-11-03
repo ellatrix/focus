@@ -717,7 +717,7 @@ Index: src/wp-admin/js/editor-expand.js
  					$tools.css( {
  						position: 'absolute',
  						top: 0,
-@@ -423,311 +371,797 @@
+@@ -423,311 +371,796 @@
  						top: heights.menuBarHeight,
  						width: contentWrapWidth - ( borderWidth * 2 ) - ( visual ? 0 : ( $top.outerWidth() - $top.width() ) )
  					} );
@@ -1229,18 +1229,18 @@ Index: src/wp-admin/js/editor-expand.js
 +				window.setUserSetting( 'editor_expand', 'off' );
 +			}
 +		});
-+
+ 
+-		// Adjust when the window is scrolled or resized.
+-		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
+-			adjust( event.type );
+-			afterScroll();
 +		// Expose on() and off()
 +		window.editorExpand = {
 +			on: on,
 +			off: off
 +		};
 +	} );
- 
--		// Adjust when the window is scrolled or resized.
--		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
--			adjust( event.type );
--			afterScroll();
++
 +	/* DFW. */
 +	$( function() {
 +		var $body = $( document.body ),
@@ -1254,7 +1254,6 @@ Index: src/wp-admin/js/editor-expand.js
 +				.add( $slug.find( 'button' ) )
 +				.add( $slug.find( 'input' ) ),
 +			$menuWrap = $( '#adminmenuwrap' ),
-+			// $textButton = $(),
 +			$editorWindow = $(),
 +			$editorIframe = $(),
 +			mceBind = function() {},
@@ -1302,39 +1301,34 @@ Index: src/wp-admin/js/editor-expand.js
 -					textEditorResize();
 -				}
 -			});
-+		// Wait for quicktags to initialize.
-+		// setTimeout( function() {
-+		// 	$textButton = $( '#qt_content_fullscreen' ).toggleClass( 'active', _isOn ).on( 'click.focus', toggle );
-+		// }, 300 );
- 
--		$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
--		$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
--		mceBind();
 +		$window.on( 'mousemove.focus', function( event ) {
 +			mouseY = event.pageY;
 +		} );
- 
--		// Adjust when entering/exiting fullscreen mode.
--		fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
++
 +		function activate() {
 +			if ( ! _isActive ) {
 +				_isActive = true;
  
--		if ( mceEditor ) {
--			mceEditor.settings.wp_autoresize_on = true;
--			mceEditor.execCommand( 'wpAutoResizeOn' );
+-		$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
+-		$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
+-		mceBind();
 +				button.disabled( false );
 +			}
 +		}
  
--			if ( ! mceEditor.isHidden() ) {
--				mceEditor.execCommand( 'wpAutoResize' );
+-		// Adjust when entering/exiting fullscreen mode.
+-		fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
 +		function deactivate() {
 +			if ( _isActive ) {
 +				off();
-+
+ 
+-		if ( mceEditor ) {
+-			mceEditor.settings.wp_autoresize_on = true;
+-			mceEditor.execCommand( 'wpAutoResizeOn' );
 +				_isActive = false;
-+
+ 
+-			if ( ! mceEditor.isHidden() ) {
+-				mceEditor.execCommand( 'wpAutoResize' );
 +				button.disabled( true );
  			}
  		}
@@ -1366,8 +1360,6 @@ Index: src/wp-admin/js/editor-expand.js
 +				fadeOut();
 +
 +				window.setUserSetting( 'dfw', '1' );
-+
-+				// $textButton.addClass( 'active' );
 +			}
  		}
  
@@ -1391,23 +1383,25 @@ Index: src/wp-admin/js/editor-expand.js
 -			element && element.attr( 'style', '' );
 -		});
 +				fadeIn();
-+
-+				$editor.off( '.focus' );
  
 -		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
-+				window.setUserSetting( 'dfw', '0' );
++				$editor.off( '.focus' );
  
 -		if ( mceEditor ) {
 -			mceEditor.settings.wp_autoresize_on = false;
 -			mceEditor.execCommand( 'wpAutoResizeOff' );
-+				// $textButton.removeClass( 'active' );
++				window.setUserSetting( 'dfw', '0' );
 +			}
 +		}
-+
+ 
+-			if ( ! mceEditor.isHidden() ) {
+-				$textEditor.hide();
 +		function toggle() {
 +			( _isOn ? off : on )();
 +		}
-+
+ 
+-				if ( height ) {
+-					mceEditor.theme.resizeTo( null, height );
 +		function isOn() {
 +			return _isOn;
 +		}
@@ -1420,7 +1414,7 @@ Index: src/wp-admin/js/editor-expand.js
 +				return;
 +			}
 +
-+			if ( key && (
++			if ( event && ( event.metaKey || ( event.ctrlKey && ! event.altKey ) || ( key && (
 +				// Special keys ( tab, ctrl, alt, esc, arrow keys... )
 +				( key <= 47 && key !== 8 && key !== 13 && key !== 32 && key !== 46 ) ||
 +				// Windows keys
@@ -1431,7 +1425,7 @@ Index: src/wp-admin/js/editor-expand.js
 +				( key >= 144 && key <= 150 ) ||
 +				// OEM or non-printable
 +				key >= 224
-+			) ) {
++			) ) ) ) {
 +				return;
 +			}
 +
@@ -1465,9 +1459,7 @@ Index: src/wp-admin/js/editor-expand.js
 +							) ) {
 +								fadeIn();
 +							}
- 
--			if ( ! mceEditor.isHidden() ) {
--				$textEditor.hide();
++
 +							scrollY = nScrollY;
 +						} );
 +					} )
@@ -1521,9 +1513,7 @@ Index: src/wp-admin/js/editor-expand.js
 +						event.preventDefault();
 +						fadeIn();
 +					} );
- 
--				if ( height ) {
--					mceEditor.theme.resizeTo( null, height );
++
 +				$editor.off( 'mouseenter.focus' );
 +
 +				if ( focusLostTimer ) {
@@ -1730,6 +1720,15 @@ Index: src/wp-admin/js/editor-expand.js
 -		off: off
 -	};
 -});
++		$( '#save-post' ).on( 'click', function( event ) {
++			var wp;
++
++			if ( ( wp = window.wp ) && wp.autosave ) {
++				wp.autosave.server.triggerSave();
++				event.preventDefault();
++			}
++		} );
++
 +		window.wp = window.wp || {};
 +		window.wp.editor = window.wp.editor || {};
 +		window.wp.editor.dfw = {
@@ -2013,7 +2012,7 @@ Index: src/wp-includes/js/quicktags.js
  	};
  
 +	qt.DFWButton = function() {
-+		qt.Button.call( this, 'dfw', quicktagsL10n.dfw, 'f', quicktagsL10n.toggleFullscreen );
++		qt.Button.call( this, 'dfw', '', 'f', quicktagsL10n.dfw );
 +	};
 +	qt.DFWButton.prototype = new qt.Button();
 +	qt.DFWButton.prototype.callback = function( button ) {
@@ -2061,3 +2060,17 @@ Index: src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js
  	});
  
  	editor.addMenuItem( 'wp_fullscreen', {
+Index: src/wp-includes/script-loader.php
+===================================================================
+--- src/wp-includes/script-loader.php	(revision 30177)
++++ src/wp-includes/script-loader.php	(working copy)
+@@ -94,7 +94,8 @@
+ 		'fullscreen'            => __( 'fullscreen' ),
+ 		'toggleFullscreen'      => esc_attr__( 'Toggle fullscreen mode' ),
+ 		'textdirection'         => esc_attr__( 'text direction' ),
+-		'toggleTextdirection'   => esc_attr__( 'Toggle Editor Text Direction' )
++		'toggleTextdirection'   => esc_attr__( 'Toggle Editor Text Direction' ),
++		'dfw'                   => esc_attr__( 'Distraction Free Writing' )
+ 	) );
+ 
+ 	$scripts->add( 'colorpicker', "/wp-includes/js/colorpicker$suffix.js", array('prototype'), '3517m' );

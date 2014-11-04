@@ -1756,15 +1756,6 @@ Index: src/wp-includes/class-wp-editor.php
  			/**
  			 * Filter the Quicktags settings.
  			 *
-@@ -418,7 +421,7 @@
- 							$url = set_url_scheme( $url );
- 							$mce_external_plugins[ $name ] = $url;
- 							$plugurl = dirname( $url );
--							$strings = '';
-+							$strings = $str1 = $str2 = '';
- 
- 							// Try to load langs/[locale].js and langs/[locale]_dlg.js
- 							if ( ! in_array( $name, $loaded_langs, true ) ) {
 @@ -546,6 +549,13 @@
  				$mce_buttons = apply_filters( 'teeny_mce_buttons', array('bold', 'italic', 'underline', 'blockquote', 'strikethrough', 'bullist', 'numlist', 'alignleft', 'aligncenter', 'alignright', 'undo', 'redo', 'link', 'unlink', 'fullscreen'), $editor_id );
  				$mce_buttons_2 = $mce_buttons_3 = $mce_buttons_4 = array();

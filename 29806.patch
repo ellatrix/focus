@@ -1,6 +1,6 @@
 Index: src/wp-admin/edit-form-advanced.php
 ===================================================================
---- src/wp-admin/edit-form-advanced.php	(revision 30241)
+--- src/wp-admin/edit-form-advanced.php	(revision 30247)
 +++ src/wp-admin/edit-form-advanced.php	(working copy)
 @@ -512,7 +512,6 @@
  <div id="postdivrich" class="postarea<?php if ( $_wp_editor_expand ) { echo ' wp-editor-expand'; } ?>">
@@ -12,7 +12,7 @@ Index: src/wp-admin/edit-form-advanced.php
  	'editor_height' => 300,
 Index: src/wp-admin/js/editor-expand.js
 ===================================================================
---- src/wp-admin/js/editor-expand.js	(revision 30241)
+--- src/wp-admin/js/editor-expand.js	(revision 30247)
 +++ src/wp-admin/js/editor-expand.js	(working copy)
 @@ -1,409 +1,357 @@
 -/* global tinymce */
@@ -717,7 +717,7 @@ Index: src/wp-admin/js/editor-expand.js
  					$tools.css( {
  						position: 'absolute',
  						top: 0,
-@@ -423,311 +371,785 @@
+@@ -423,311 +371,784 @@
  						top: heights.menuBarHeight,
  						width: contentWrapWidth - ( borderWidth * 2 ) - ( visual ? 0 : ( $top.outerWidth() - $top.width() ) )
  					} );
@@ -1254,9 +1254,8 @@ Index: src/wp-admin/js/editor-expand.js
 +			$editorIframe = $(),
 +			mceBind = function() {},
 +			mceUnbind = function() {},
-+			dfw = window.getUserSetting( 'dfw' ),
-+			_isActive = window.getUserSetting( 'editor_expand' ) === 'on',
-+			_isOn = _isActive ? dfw ? !! parseInt( dfw, 10 ) : true : false,
++			_isActive = window.getUserSetting( 'editor_expand', 'on' ) === 'on',
++			_isOn = _isActive ? !! parseInt( window.getUserSetting( 'dfw', '1' ), 10 ) : false,
 +			traveledX = 0,
 +			traveledY = 0,
 +			buffer = 20,
@@ -1733,7 +1732,7 @@ Index: src/wp-admin/js/editor-expand.js
 +} )( window, window.jQuery );
 Index: src/wp-includes/class-wp-editor.php
 ===================================================================
---- src/wp-includes/class-wp-editor.php	(revision 30241)
+--- src/wp-includes/class-wp-editor.php	(revision 30247)
 +++ src/wp-includes/class-wp-editor.php	(working copy)
 @@ -278,6 +278,9 @@
  			if ( $set['dfw'] )
@@ -1770,7 +1769,7 @@ Index: src/wp-includes/class-wp-editor.php
  				 * Filter the second-row list of TinyMCE buttons (Visual tab).
 Index: src/wp-includes/css/editor.css
 ===================================================================
---- src/wp-includes/css/editor.css	(revision 30241)
+--- src/wp-includes/css/editor.css	(revision 30247)
 +++ src/wp-includes/css/editor.css	(working copy)
 @@ -183,7 +183,7 @@
  }
@@ -1954,7 +1953,7 @@ Index: src/wp-includes/css/editor.css
 +}
 Index: src/wp-includes/js/quicktags.js
 ===================================================================
---- src/wp-includes/js/quicktags.js	(revision 30241)
+--- src/wp-includes/js/quicktags.js	(revision 30247)
 +++ src/wp-includes/js/quicktags.js	(working copy)
 @@ -288,6 +288,10 @@
  				html += theButtons.fullscreen.html(name + '_');
@@ -2014,7 +2013,7 @@ Index: src/wp-includes/js/quicktags.js
  	};
 Index: src/wp-includes/js/tinymce/plugins/wordpress/plugin.js
 ===================================================================
---- src/wp-includes/js/tinymce/plugins/wordpress/plugin.js	(revision 30241)
+--- src/wp-includes/js/tinymce/plugins/wordpress/plugin.js	(revision 30247)
 +++ src/wp-includes/js/tinymce/plugins/wordpress/plugin.js	(working copy)
 @@ -7,6 +7,10 @@
  	var DOM = tinymce.DOM, wpAdvButton, modKey, style,
@@ -2029,7 +2028,7 @@ Index: src/wp-includes/js/tinymce/plugins/wordpress/plugin.js
  			pixels = 0;
 Index: src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js
 ===================================================================
---- src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(revision 30241)
+--- src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(revision 30247)
 +++ src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(working copy)
 @@ -65,7 +65,7 @@
  		tooltip: 'Distraction Free Writing',
@@ -2042,7 +2041,7 @@ Index: src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js
  	editor.addMenuItem( 'wp_fullscreen', {
 Index: src/wp-includes/script-loader.php
 ===================================================================
---- src/wp-includes/script-loader.php	(revision 30241)
+--- src/wp-includes/script-loader.php	(revision 30247)
 +++ src/wp-includes/script-loader.php	(working copy)
 @@ -94,7 +94,8 @@
  		'fullscreen'            => __( 'fullscreen' ),

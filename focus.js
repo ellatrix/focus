@@ -229,8 +229,6 @@ window.jQuery( function( $ ) {
 				focusLostTimer = null;
 			}
 
-			$menuWrap.off( 'mouseenter.focus' );
-
 			$body.addClass( 'focus-on' ).removeClass( 'focus-off' );
 		}
 
@@ -262,15 +260,6 @@ window.jQuery( function( $ ) {
 				focusLostTimer = null;
 				$editor.off( 'mouseenter.focus' );
 			}, 1000 );
-
-			$menuWrap.on( 'mouseenter.focus', function() {
-				if ( focusLostTimer ) {
-					clearTimeout( focusLostTimer );
-					focusLostTimer = null;
-				}
-
-				$editor.off( 'mouseenter.focus' );
-			} );
 
 			$body.addClass( 'focus-off' ).removeClass( 'focus-on' );
 		}

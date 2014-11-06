@@ -1766,7 +1766,7 @@ Index: src/wp-includes/class-wp-editor.php
  			if ( $set['dfw'] )
  				$qtInit['buttons'] .= ',fullscreen';
  
-+			if ( $editor_id === 'content' )
++			if ( $editor_id === 'content' && ! wp_is_mobile() )
 +				$qtInit['buttons'] .= ',dfw';
 +
  			/**

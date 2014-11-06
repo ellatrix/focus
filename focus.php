@@ -12,7 +12,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
+if ( is_admin() && ! class_exists( 'Focus' ) ) {
 	class Focus {
 		const VERSION = '0.2.8';
 		const MIN_WP_VERSION = '4.1-alpha';
@@ -35,10 +35,33 @@ if ( is_admin() && ! wp_is_mobile() && ! class_exists( 'Focus' ) ) {
 		}
 
 		function load() {
-			add_filter( 'mce_css', array( $this, 'css' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-			add_action( 'mce_external_plugins', array( $this, 'external_plugins' ) );
-			add_action( 'tiny_mce_plugins', array( $this, 'plugins' ) );
+			if ( wp_is_mobile() ) {
+				add_filter( 'tiny_mce_before_init', array( $this, 'mce_remove_fullscreen_button' ) );
+				add_filter( 'quicktags_settings', array( $this, 'qt_remove_fullscreen_button' ) );
+			} else {
+				add_filter( 'mce_css', array( $this, 'css' ) );
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+				add_action( 'mce_external_plugins', array( $this, 'external_plugins' ) );
+				add_action( 'tiny_mce_plugins', array( $this, 'plugins' ) );
+			}
+		}
+
+		function mce_remove_fullscreen_button( $config ) {
+			$buttons = explode( ',', $config[ 'toolbar1' ] );
+			$buttons = array_diff( $buttons, array( 'wp_fullscreen' ) );
+
+			$config[ 'toolbar1' ] = implode( ',', $buttons );
+
+			return $config;
+		}
+
+		function qt_remove_fullscreen_button( $config ) {
+			$buttons = explode( ',', $config[ 'buttons' ] );
+			$buttons = array_diff( $buttons, array( 'fullscreen' ) );
+
+			$config[ 'buttons' ] = implode( ',', $buttons );
+
+			return $config;
 		}
 
 		function css( $css ) {

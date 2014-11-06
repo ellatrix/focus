@@ -385,13 +385,4 @@ window.jQuery( function( $ ) {
 
 		$title.add( $content ).on( 'blur.focus', maybeFadeIn );
 	}
-
-	$( '#save-post' ).on( 'click', function( event ) {
-		var wp = window.wp;
-
-		if ( wp && wp.autosave ) {
-			wp.autosave.server.triggerSave();
-			event.preventDefault();
-		}
-	} );
 } );

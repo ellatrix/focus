@@ -717,7 +717,7 @@ Index: src/wp-admin/js/editor-expand.js
  					$tools.css( {
  						position: 'absolute',
  						top: 0,
-@@ -423,311 +371,784 @@
+@@ -423,311 +371,775 @@
  						top: heights.menuBarHeight,
  						width: contentWrapWidth - ( borderWidth * 2 ) - ( visual ? 0 : ( $top.outerWidth() - $top.width() ) )
  					} );
@@ -764,7 +764,12 @@ Index: src/wp-admin/js/editor-expand.js
  					} );
 -				}
 -			}
--
++				// Maybe unpin the top.
++				} else if ( fixedTop || resize ) {
++					// Handle scrolling up.
++					if ( windowPos <= ( topPos - heights.toolsHeight - heights.adminBarHeight ) ) {
++						fixedTop = false;
+ 
 -			// Maybe adjust the bottom bar.
 -			if ( ( ! fixedBottom || resize ) &&
 -				// +[n] for the border around the .wp-editor-container.
@@ -776,12 +781,7 @@ Index: src/wp-admin/js/editor-expand.js
 -					bottom: heights.bottomHeight,
 -					width: contentWrapWidth - ( borderWidth * 2 )
 -				} );
-+				// Maybe unpin the top.
-+				} else if ( fixedTop || resize ) {
-+					// Handle scrolling up.
-+					if ( windowPos <= ( topPos - heights.toolsHeight - heights.adminBarHeight ) ) {
-+						fixedTop = false;
- 
+-
 -				$bottom.css( {
 -					position: 'fixed',
 -					bottom: 0,
@@ -1113,15 +1113,15 @@ Index: src/wp-admin/js/editor-expand.js
 +						textEditorResize();
 +					}
 +				});
- 
--				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
++
 +			$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
 +			$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
 +			mceBind();
 +
 +			// Adjust when entering/exiting fullscreen mode.
 +			fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
-+
+ 
+-				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
 +			if ( mceEditor ) {
 +				mceEditor.settings.wp_autoresize_on = true;
 +				mceEditor.execCommand( 'wpAutoResizeOn' );
@@ -1129,11 +1129,11 @@ Index: src/wp-admin/js/editor-expand.js
 +				if ( ! mceEditor.isHidden() ) {
 +					mceEditor.execCommand( 'wpAutoResize' );
 +				}
- 			}
++			}
 +
 +			if ( ! mceEditor || mceEditor.isHidden() ) {
 +				textEditorResize();
-+			}
+ 			}
 +
 +			adjust();
 +
@@ -1153,10 +1153,7 @@ Index: src/wp-admin/js/editor-expand.js
 +			if ( window.pageYOffset && window.pageYOffset > pageYOffsetAtTop ) {
 +				window.scrollTo( window.pageXOffset, 0 );
 +			}
- 
--	function initialResize( callback ) {
--		for ( var i = 1; i < 6; i++ ) {
--			setTimeout( callback, 500 * i );
++
 +			$wrap.removeClass( 'wp-editor-expand' );
 +
 +			$window.off( '.editor-expand' );
@@ -1186,7 +1183,10 @@ Index: src/wp-admin/js/editor-expand.js
 +					}
 +				}
 +			}
-+
+ 
+-	function initialResize( callback ) {
+-		for ( var i = 1; i < 6; i++ ) {
+-			setTimeout( callback, 500 * i );
 +			if ( height ) {
 +				$textEditor.height( height );
 +			}
@@ -1236,7 +1236,11 @@ Index: src/wp-admin/js/editor-expand.js
 +			off: off
 +		};
 +	} );
-+
+ 
+-		// Adjust when the window is scrolled or resized.
+-		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
+-			adjust( event.type );
+-			afterScroll();
 +	/* DFW. */
 +	$( function() {
 +		var $body = $( document.body ),
@@ -1273,14 +1277,6 @@ Index: src/wp-admin/js/editor-expand.js
 +			bottom: 0,
 +			left: 0,
 +			'z-index': 9997
-+		} );
- 
--		// Adjust when the window is scrolled or resized.
--		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
--			adjust( event.type );
--			afterScroll();
-+		$editor.css( {
-+			position: 'relative'
  		} );
  
 -		// Adjust when collapsing the menu, changing the columns, changing the body class.
@@ -1292,8 +1288,8 @@ Index: src/wp-admin/js/editor-expand.js
 -					adjust();
 -					window.scrollBy( 0, 1 );
 -				}
-+		$window.on( 'mousemove.focus', function( event ) {
-+			mouseY = event.pageY;
++		$editor.css( {
++			position: 'relative'
 +		} );
  
 -				adjust();
@@ -1304,13 +1300,17 @@ Index: src/wp-admin/js/editor-expand.js
 -					textEditorResize();
 -				}
 -			});
-+		function activate() {
-+			if ( ! _isActive ) {
-+				_isActive = true;
++		$window.on( 'mousemove.focus', function( event ) {
++			mouseY = event.pageY;
++		} );
  
 -		$textEditor.on( 'focus.editor-expand input.editor-expand propertychange.editor-expand', textEditorResize );
 -		$textEditor.on( 'keyup.editor-expand', textEditorKeyup );
 -		mceBind();
++		function activate() {
++			if ( ! _isActive ) {
++				_isActive = true;
++
 +				button.disabled( false );
 +			}
 +		}
@@ -1345,19 +1345,19 @@ Index: src/wp-admin/js/editor-expand.js
 +				_isOn = true;
 +
 +				mceBind();
++
++				$content.on( 'keydown.focus', fadeOut );
++
++				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
  
 -	function off() {
 -		var height = window.getUserSetting('ed_size');
-+				$content.on( 'keydown.focus', fadeOut );
++				fadeOut();
  
 -		// Scroll to the top when triggering this from JS.
 -		// Ensures toolbars are reset properly.
 -		if ( window.pageYOffset && window.pageYOffset > pageYOffsetAtTop ) {
 -			window.scrollTo( window.pageXOffset, 0 );
-+				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
-+
-+				fadeOut();
-+
 +				window.setUserSetting( 'dfw', '1' );
 +			}
  		}
@@ -1382,13 +1382,9 @@ Index: src/wp-admin/js/editor-expand.js
 -			element && element.attr( 'style', '' );
 -		});
 +				fadeIn();
- 
--		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
++
 +				$editor.off( '.focus' );
- 
--		if ( mceEditor ) {
--			mceEditor.settings.wp_autoresize_on = false;
--			mceEditor.execCommand( 'wpAutoResizeOff' );
++
 +				window.setUserSetting( 'dfw', '0' );
 +			}
 +		}
@@ -1454,7 +1450,8 @@ Index: src/wp-admin/js/editor-expand.js
 +							) ) {
 +								fadeIn();
 +							}
-+
+ 
+-		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
 +							scrollY = nScrollY;
 +						} );
 +					} )
@@ -1499,7 +1496,10 @@ Index: src/wp-admin/js/editor-expand.js
 +								traveledX = traveledY = 0;
 +							}
 +						}
-+
+ 
+-		if ( mceEditor ) {
+-			mceEditor.settings.wp_autoresize_on = false;
+-			mceEditor.execCommand( 'wpAutoResizeOff' );
 +						x = nx;
 +						y = ny;
 +					} )
@@ -1708,15 +1708,6 @@ Index: src/wp-admin/js/editor-expand.js
 -		off: off
 -	};
 -});
-+		$( '#save-post' ).on( 'click', function( event ) {
-+			var wp;
-+
-+			if ( ( wp = window.wp ) && wp.autosave ) {
-+				wp.autosave.server.triggerSave();
-+				event.preventDefault();
-+			}
-+		} );
-+
 +		window.wp = window.wp || {};
 +		window.wp.editor = window.wp.editor || {};
 +		window.wp.editor.dfw = {

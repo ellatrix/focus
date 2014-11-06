@@ -1894,7 +1894,7 @@ Index: src/wp-includes/css/editor.css
  		margin: 4px 4px 0 0;
  	}
  
-@@ -2008,3 +2012,74 @@
+@@ -2008,3 +2012,78 @@
  }
  
  /* TODO: DFW responsive */
@@ -1915,6 +1915,10 @@ Index: src/wp-includes/css/editor.css
 +	transition-property: opacity;
 +	-webkit-transition-timing-function: ease-in-out;
 +	transition-timing-function: ease-in-out;
++}
++
++.focus-on #wp-toolbar {
++	opacity: 0.3;
 +}
 +
 +.focus-off .wrap > h2,

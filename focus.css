@@ -24,6 +24,10 @@
 	transition-timing-function: ease-in-out;
 }
 
+.focus-on #wp-toolbar {
+	opacity: 0.3;
+}
+
 .focus-off .wrap > h2,
 .focus-off #wpfooter,
 .focus-off .postbox-container,

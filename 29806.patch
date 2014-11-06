@@ -2083,6 +2083,19 @@ Index: src/wp-includes/js/tinymce/plugins/wordpress/plugin.js
  	function toggleToolbars( state ) {
  		var iframe, initial, toolbars,
  			pixels = 0;
+Index: src/wp-includes/js/tinymce/plugins/wpautoresize/plugin.js
+===================================================================
+--- src/wp-includes/js/tinymce/plugins/wpautoresize/plugin.js	(revision 30247)
++++ src/wp-includes/js/tinymce/plugins/wpautoresize/plugin.js	(working copy)
+@@ -117,7 +117,7 @@
+ 				resize( e );
+ 			}
+ 
+-			editor.fire( 'wp-autoresize', { height: resizeHeight } );
++			editor.fire( 'wp-autoresize', { height: resizeHeight, deltaHeight: e.type === 'nodechange' ? deltaSize : null } );
+ 		}
+ 	}
+ 
 Index: src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js
 ===================================================================
 --- src/wp-includes/js/tinymce/plugins/wpfullscreen/plugin.js	(revision 30247)

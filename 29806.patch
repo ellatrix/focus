@@ -717,7 +717,7 @@ Index: src/wp-admin/js/editor-expand.js
  					$tools.css( {
  						position: 'absolute',
  						top: 0,
-@@ -423,311 +371,775 @@
+@@ -423,311 +371,812 @@
  						top: heights.menuBarHeight,
  						width: contentWrapWidth - ( borderWidth * 2 ) - ( visual ? 0 : ( $top.outerWidth() - $top.width() ) )
  					} );
@@ -764,12 +764,7 @@ Index: src/wp-admin/js/editor-expand.js
  					} );
 -				}
 -			}
-+				// Maybe unpin the top.
-+				} else if ( fixedTop || resize ) {
-+					// Handle scrolling up.
-+					if ( windowPos <= ( topPos - heights.toolsHeight - heights.adminBarHeight ) ) {
-+						fixedTop = false;
- 
+-
 -			// Maybe adjust the bottom bar.
 -			if ( ( ! fixedBottom || resize ) &&
 -				// +[n] for the border around the .wp-editor-container.
@@ -781,7 +776,12 @@ Index: src/wp-admin/js/editor-expand.js
 -					bottom: heights.bottomHeight,
 -					width: contentWrapWidth - ( borderWidth * 2 )
 -				} );
--
++				// Maybe unpin the top.
++				} else if ( fixedTop || resize ) {
++					// Handle scrolling up.
++					if ( windowPos <= ( topPos - heights.toolsHeight - heights.adminBarHeight ) ) {
++						fixedTop = false;
+ 
 -				$bottom.css( {
 -					position: 'fixed',
 -					bottom: 0,
@@ -1104,7 +1104,8 @@ Index: src/wp-admin/js/editor-expand.js
 +						adjust();
 +						window.scrollBy( 0, 1 );
 +					}
-+
+ 
+-				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
 +					adjust();
 +				}).on( 'wp-window-resized.editor-expand', function() {
 +					if ( mceEditor && ! mceEditor.isHidden() ) {
@@ -1120,8 +1121,7 @@ Index: src/wp-admin/js/editor-expand.js
 +
 +			// Adjust when entering/exiting fullscreen mode.
 +			fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
- 
--				$textEditorClone.width( contentWrapWidth - 20 - ( borderWidth * 2 ) );
++
 +			if ( mceEditor ) {
 +				mceEditor.settings.wp_autoresize_on = true;
 +				mceEditor.execCommand( 'wpAutoResizeOn' );
@@ -1174,7 +1174,10 @@ Index: src/wp-admin/js/editor-expand.js
 +			if ( mceEditor ) {
 +				mceEditor.settings.wp_autoresize_on = false;
 +				mceEditor.execCommand( 'wpAutoResizeOff' );
-+
+ 
+-	function initialResize( callback ) {
+-		for ( var i = 1; i < 6; i++ ) {
+-			setTimeout( callback, 500 * i );
 +				if ( ! mceEditor.isHidden() ) {
 +					$textEditor.hide();
 +
@@ -1183,10 +1186,7 @@ Index: src/wp-admin/js/editor-expand.js
 +					}
 +				}
 +			}
- 
--	function initialResize( callback ) {
--		for ( var i = 1; i < 6; i++ ) {
--			setTimeout( callback, 500 * i );
++
 +			if ( height ) {
 +				$textEditor.height( height );
 +			}
@@ -1229,18 +1229,18 @@ Index: src/wp-admin/js/editor-expand.js
 +				window.setUserSetting( 'editor_expand', 'off' );
 +			}
 +		});
-+
+ 
+-		// Adjust when the window is scrolled or resized.
+-		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
+-			adjust( event.type );
+-			afterScroll();
 +		// Expose on() and off()
 +		window.editorExpand = {
 +			on: on,
 +			off: off
 +		};
 +	} );
- 
--		// Adjust when the window is scrolled or resized.
--		$window.on( 'scroll.editor-expand resize.editor-expand', function( event ) {
--			adjust( event.type );
--			afterScroll();
++
 +	/* DFW. */
 +	$( function() {
 +		var $body = $( document.body ),
@@ -1256,15 +1256,13 @@ Index: src/wp-admin/js/editor-expand.js
 +			$menuWrap = $( '#adminmenuwrap' ),
 +			$editorWindow = $(),
 +			$editorIframe = $(),
-+			mceBind = function() {},
-+			mceUnbind = function() {},
 +			_isActive = window.getUserSetting( 'editor_expand', 'on' ) === 'on',
 +			_isOn = _isActive ? !! parseInt( window.getUserSetting( 'dfw', '1' ), 10 ) : false,
 +			traveledX = 0,
 +			traveledY = 0,
 +			buffer = 20,
 +			faded, fadedAdminBar, fadedSlug,
-+			editorRect, x, y, mouseY, scrollY, button,
++			editorRect, x, y, mouseY, scrollY,
 +			focusLostTimer, overlayTimer, editorHasFocus;
 +
 +		$body.append( $overlay );
@@ -1310,25 +1308,25 @@ Index: src/wp-admin/js/editor-expand.js
 +		function activate() {
 +			if ( ! _isActive ) {
 +				_isActive = true;
-+
-+				button.disabled( false );
-+			}
-+		}
  
 -		// Adjust when entering/exiting fullscreen mode.
 -		fullscreen && fullscreen.pubsub.subscribe( 'hidden', fullscreenHide );
-+		function deactivate() {
-+			if ( _isActive ) {
-+				off();
++				$document.trigger( 'dfw-activate' );
++			}
++		}
  
 -		if ( mceEditor ) {
 -			mceEditor.settings.wp_autoresize_on = true;
 -			mceEditor.execCommand( 'wpAutoResizeOn' );
-+				_isActive = false;
++		function deactivate() {
++			if ( _isActive ) {
++				off();
  
 -			if ( ! mceEditor.isHidden() ) {
 -				mceEditor.execCommand( 'wpAutoResize' );
-+				button.disabled( true );
++				_isActive = false;
++
++				$document.trigger( 'dfw-deactivate' );
  			}
  		}
  
@@ -1343,22 +1341,22 @@ Index: src/wp-admin/js/editor-expand.js
 +		function on() {
 +			if ( ! _isOn && _isActive ) {
 +				_isOn = true;
-+
-+				mceBind();
-+
-+				$content.on( 'keydown.focus', fadeOut );
-+
-+				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
  
 -	function off() {
 -		var height = window.getUserSetting('ed_size');
-+				fadeOut();
++				$content.on( 'keydown.focus', fadeOut );
  
 -		// Scroll to the top when triggering this from JS.
 -		// Ensures toolbars are reset properly.
 -		if ( window.pageYOffset && window.pageYOffset > pageYOffsetAtTop ) {
 -			window.scrollTo( window.pageXOffset, 0 );
++				$title.add( $content ).on( 'blur.focus', maybeFadeIn );
++
++				fadeOut();
++
 +				window.setUserSetting( 'dfw', '1' );
++
++				$document.trigger( 'dfw-on' );
 +			}
  		}
  
@@ -1371,24 +1369,30 @@ Index: src/wp-admin/js/editor-expand.js
 -		$document.off( '.editor-expand' );
 -		$textEditor.off( '.editor-expand' );
 -		mceUnbind();
-+				mceUnbind();
++				$title.add( $content ).off( '.focus' );
  
 -		// Adjust when entering/exiting fullscreen mode.
 -		fullscreen && fullscreen.pubsub.unsubscribe( 'hidden', fullscreenHide );
-+				$title.add( $content ).off( '.focus' );
++				fadeIn();
  
 -		// Reset all css
 -		$.each( [ $visualTop, $textTop, $tools, $menuBar, $bottom, $statusBar, $contentWrap, $visualEditor, $textEditor, $sideSortables ], function( i, element ) {
 -			element && element.attr( 'style', '' );
 -		});
-+				fadeIn();
-+
 +				$editor.off( '.focus' );
-+
+ 
+-		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
 +				window.setUserSetting( 'dfw', '0' );
+ 
+-		if ( mceEditor ) {
+-			mceEditor.settings.wp_autoresize_on = false;
+-			mceEditor.execCommand( 'wpAutoResizeOff' );
++				$document.trigger( 'dfw-off' );
 +			}
 +		}
-+
+ 
+-			if ( ! mceEditor.isHidden() ) {
+-				$textEditor.hide();
 +		function toggle() {
 +			( _isOn ? off : on )();
 +		}
@@ -1396,7 +1400,9 @@ Index: src/wp-admin/js/editor-expand.js
 +		function isOn() {
 +			return _isOn;
 +		}
-+
+ 
+-				if ( height ) {
+-					mceEditor.theme.resizeTo( null, height );
 +		function fadeOut( event ) {
 +			var key = event && event.keyCode;
 +
@@ -1450,8 +1456,7 @@ Index: src/wp-admin/js/editor-expand.js
 +							) ) {
 +								fadeIn();
 +							}
- 
--		fixedTop = fixedBottom = fixedSideTop = fixedSideBottom = false;
++
 +							scrollY = nScrollY;
 +						} );
 +					} )
@@ -1496,10 +1501,7 @@ Index: src/wp-admin/js/editor-expand.js
 +								traveledX = traveledY = 0;
 +							}
 +						}
- 
--		if ( mceEditor ) {
--			mceEditor.settings.wp_autoresize_on = false;
--			mceEditor.execCommand( 'wpAutoResizeOff' );
++
 +						x = nx;
 +						y = ny;
 +					} )
@@ -1508,13 +1510,9 @@ Index: src/wp-admin/js/editor-expand.js
 +						event.preventDefault();
 +						fadeIn();
 +					} );
- 
--			if ( ! mceEditor.isHidden() ) {
--				$textEditor.hide();
++
 +				$editor.off( 'mouseenter.focus' );
- 
--				if ( height ) {
--					mceEditor.theme.resizeTo( null, height );
++
 +				if ( focusLostTimer ) {
 +					clearTimeout( focusLostTimer );
 +					focusLostTimer = null;
@@ -1629,17 +1627,34 @@ Index: src/wp-admin/js/editor-expand.js
 +
 +		$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
 +			editor.addButton( 'dfw', {
++				active: _isOn,
 +				classes: 'wp-dfw btn widget',
 +				disabled: ! _isActive,
 +				onclick: toggle,
 +				onPostRender: function() {
-+					button = this;
++					var button = this;
++
++					$document
++					.on( 'dfw-activate.focus', function() {
++						button.disabled( false );
++					} )
++					.on( 'dfw-deactivate.focus', function() {
++						button.disabled( true );
++					} )
++					.on( 'dfw-on.focus', function() {
++						button.active( true );
++					} )
++					.on( 'dfw-off.focus', function() {
++						button.active( false );
++					} );
 +				},
 +				tooltip: 'Distraction Free Writing'
  			} );
 +		} );
 +
 +		$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
++			var mceBind, mceUnbind;
++
 +			function focus() {
 +				editorHasFocus = true;
 +			}
@@ -1653,7 +1668,6 @@ Index: src/wp-admin/js/editor-expand.js
 +				$editorIframe = $( editor.getContentAreaContainer() ).find( 'iframe' );
 +
 +				mceBind = function() {
-+					button.active( true );
 +					editor.on( 'keydown', fadeOut );
 +					editor.on( 'blur', maybeFadeIn );
 +					editor.on( 'focus', focus );
@@ -1661,7 +1675,6 @@ Index: src/wp-admin/js/editor-expand.js
 +				};
 +
 +				mceUnbind = function() {
-+					button.active( false );
 +					editor.off( 'keydown', fadeOut );
 +					editor.off( 'blur', maybeFadeIn );
 +					editor.off( 'focus', focus );
@@ -1672,11 +1685,35 @@ Index: src/wp-admin/js/editor-expand.js
 +					mceBind();
 +				}
 +
++				$document.on( 'dfw-on.focus', mceBind ).on( 'dfw-off.focus', mceUnbind );
++
 +				// Make sure the body focusses when clicking outside it.
 +				editor.on( 'click', function( event ) {
 +					if ( event.target === editor.getDoc().documentElement ) {
 +						editor.focus();
 +					}
++				} );
++			}
++		} );
++
++		$document.on( 'quicktags-init', function( event, editor ) {
++			var $button;
++
++			if ( editor.settings.buttons && ( ',' + editor.settings.buttons + ',' ).indexOf( ',dfw,' ) !== -1 ) {
++				$button = $( '#' + editor.name + '_dfw' );
++
++				$( document )
++				.on( 'dfw-activate', function() {
++					$button.prop( 'disabled', false );
++				} )
++				.on( 'dfw-deactivate', function() {
++					$button.prop( 'disabled', true );
++				} )
++				.on( 'dfw-on', function() {
++					$button.addClass( 'active' );
++				} )
++				.on( 'dfw-off', function() {
++					$button.removeClass( 'active' );
 +				} );
 +			}
 +		} );
@@ -1979,27 +2016,38 @@ Index: src/wp-includes/js/quicktags.js
  
  			if ( 'rtl' === document.getElementsByTagName('html')[0].dir ) {
  				theButtons.textdirection = new qt.TextDirectionButton();
-@@ -405,11 +409,17 @@
+@@ -296,6 +300,8 @@
+ 
+ 			ed.toolbar.innerHTML = html;
+ 			ed.theButtons = theButtons;
++
++			window.jQuery && window.jQuery( document ).trigger( 'quicktags-init', [ ed ] );
+ 		}
+ 		t.buttonsInitDone = true;
+ 	};
+@@ -405,11 +411,19 @@
  		t.instance = instance || '';
  	};
  	qt.Button.prototype.html = function(idPrefix) {
 -		var title = this.title ? ' title="' + this.title + '"' : '';
 +		var title = this.title ? ' title="' + this.title + '"' : '',
-+			active, wp;
++			active, on, wp,
++			dfw = ( wp = window.wp ) && wp.editor && wp.editor.dfw;
  
  		if ( this.id === 'fullscreen' ) {
 -			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-fullscreen"' + title + '></button>';
 +			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-dfw"' + title + '></button>';
 +		} else if ( this.id === 'dfw' ) {
-+			active = ( wp = window.wp ) && wp.editor && wp.editor.dfw && wp.editor.dfw.isActive() ? ' active' : '';
++			active = dfw && dfw.isActive() ? '' : ' disabled="disabled"';
++			on = dfw && dfw.isOn() ? ' active' : '';
 +
-+			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-dfw' + active + '"' + title + '></button>';
++			return '<button type="button" id="' + idPrefix + this.id + '" class="ed_button qt-dfw' + on + '"' + title + active + '></button>';
  		}
 +
  		return '<input type="button" id="' + idPrefix + this.id + '" class="ed_button button button-small"' + title + ' value="' + this.display + '" />';
  	};
  	qt.Button.prototype.callback = function(){};
-@@ -619,6 +629,24 @@
+@@ -619,6 +633,20 @@
  		wp.editor.fullscreen.on();
  	};
  
@@ -2007,15 +2055,11 @@ Index: src/wp-includes/js/quicktags.js
 +		qt.Button.call( this, 'dfw', '', 'f', quicktagsL10n.dfw );
 +	};
 +	qt.DFWButton.prototype = new qt.Button();
-+	qt.DFWButton.prototype.callback = function( button ) {
++	qt.DFWButton.prototype.callback = function() {
 +		var wp;
 +
 +		if ( ! ( wp = window.wp ) || ! wp.editor || ! wp.editor.dfw ) {
 +			return;
-+		}
-+
-+		if ( window.jQuery ) {
-+			window.jQuery( button ).toggleClass( 'active' );
 +		}
 +
 +		window.wp.editor.dfw.toggle();

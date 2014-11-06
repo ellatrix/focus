@@ -19,15 +19,13 @@ window.jQuery( function( $ ) {
 		$textButton = $(),
 		$editorWindow = $(),
 		$editorIframe = $(),
-		mceBind = function() {},
-		mceUnbind = function() {},
 		_isActive = window.getUserSetting( 'editor_expand', 'on' ) === 'on',
 		_isOn = _isActive ? !! parseInt( window.getUserSetting( 'dfw', '1' ), 10 ) : false,
 		traveledX = 0,
 		traveledY = 0,
 		buffer = 20,
 		faded, fadedAdminBar, fadedSlug,
-		editorRect, x, y, mouseY, scrollY, button,
+		editorRect, x, y, mouseY, scrollY,
 		focusLostTimer, overlayTimer, editorHasFocus;
 
 	$body.append( $overlay );
@@ -48,7 +46,24 @@ window.jQuery( function( $ ) {
 
 	// Wait for quicktags to initialize.
 	setTimeout( function() {
-		$textButton = $( '#qt_content_fullscreen' ).toggleClass( 'active', isOn ).on( 'click.focus', toggle );
+		$textButton = $( '#qt_content_fullscreen' ).on( 'click.focus', toggle );
+
+		! _isActive && $textButton.prop( 'disabled', true );
+		_isOn && $textButton.addClass( 'active' );
+
+		$document
+		.on( 'dfw-activate', function() {
+			$textButton.prop( 'disabled', false );
+		} )
+		.on( 'dfw-deactivate', function() {
+			$textButton.prop( 'disabled', true );
+		} )
+		.on( 'dfw-on', function() {
+			$textButton.addClass( 'active' );
+		} )
+		.on( 'dfw-off', function() {
+			$textButton.removeClass( 'active' );
+		} );
 	}, 300 );
 
 	$window.on( 'mousemove.focus', function( event ) {
@@ -56,28 +71,30 @@ window.jQuery( function( $ ) {
 	} );
 
 	function activate() {
-		if ( ! isActive ) {
-			isActive = true;
+		if ( ! _isActive ) {
+			_isActive = true;
 
-			button.disabled( false );
+			$document.trigger( 'dfw-activate' );
 		}
 	}
 
 	function deactivate() {
-		if ( isActive ) {
+		if ( _isActive ) {
 			off();
 
-			isActive = false;
+			_isActive = false;
 
-			button.disabled( true );
+			$document.trigger( 'dfw-deactivate' );
 		}
 	}
 
-	function on() {
-		if ( ! isOn && isActive ) {
-			isOn = true;
+	function isActive() {
+		return _isActive;
+	}
 
-			mceBind();
+	function on() {
+		if ( ! _isOn && _isActive ) {
+			_isOn = true;
 
 			$content.on( 'keydown.focus', fadeOut );
 
@@ -87,15 +104,13 @@ window.jQuery( function( $ ) {
 
 			window.setUserSetting( 'dfw', '1' );
 
-			$textButton.addClass( 'active' );
+			$document.trigger( 'dfw-on' );
 		}
 	}
 
 	function off() {
-		if ( isOn ) {
-			isOn = false;
-
-			mceUnbind();
+		if ( _isOn ) {
+			_isOn = false;
 
 			$title.add( $content ).off( '.focus' );
 
@@ -105,12 +120,12 @@ window.jQuery( function( $ ) {
 
 			window.setUserSetting( 'dfw', '0' );
 
-			$textButton.removeClass( 'active' );
+			$document.trigger( 'dfw-off' );
 		}
 	}
 
 	function toggle() {
-		( isOn ? off : on )();
+		( _isOn ? off : on )();
 	}
 
 	function fadeOut( event ) {
@@ -326,17 +341,34 @@ window.jQuery( function( $ ) {
 
 	$document.on( 'tinymce-editor-setup.focus', function( event, editor ) {
 		editor.addButton( 'wp_fullscreen', {
+			active: _isOn,
 			classes: 'wp-fullscreen btn widget',
 			disabled: ! isActive,
 			onclick: toggle,
 			onPostRender: function() {
-				button = this;
+				var button = this;
+
+				$document
+				.on( 'dfw-activate.focus', function() {
+					button.disabled( false );
+				} )
+				.on( 'dfw-deactivate.focus', function() {
+					button.disabled( true );
+				} )
+				.on( 'dfw-on.focus', function() {
+					button.active( true );
+				} )
+				.on( 'dfw-off.focus', function() {
+					button.active( false );
+				} );
 			},
 			tooltip: 'Distraction Free Writing'
 		} );
 	} );
 
 	$document.on( 'tinymce-editor-init.focus', function( event, editor ) {
+		var mceBind, mceUnbind;
+
 		function focus() {
 			editorHasFocus = true;
 		}
@@ -350,7 +382,6 @@ window.jQuery( function( $ ) {
 			$editorIframe = $( editor.getContentAreaContainer() ).find( 'iframe' );
 
 			mceBind = function() {
-				button.active( true );
 				editor.on( 'keydown', fadeOut );
 				editor.on( 'blur', maybeFadeIn );
 				editor.on( 'focus', focus );
@@ -358,16 +389,17 @@ window.jQuery( function( $ ) {
 			};
 
 			mceUnbind = function() {
-				button.active( false );
 				editor.off( 'keydown', fadeOut );
 				editor.off( 'blur', maybeFadeIn );
 				editor.off( 'focus', focus );
 				editor.off( 'blur', blur );
 			};
 
-			if ( isOn ) {
+			if ( _isOn ) {
 				mceBind();
 			}
+
+			$document.on( 'dfw-on.focus', mceBind ).on( 'dfw-off.focus', mceUnbind );
 
 			// Make sure the body focusses when clicking outside it.
 			editor.on( 'click', function( event ) {
@@ -380,7 +412,7 @@ window.jQuery( function( $ ) {
 
 	$document.on( 'editor-expand-on.focus', activate ).on( 'editor-expand-off.focus', deactivate );
 
-	if ( isOn ) {
+	if ( _isOn ) {
 		$content.on( 'keydown.focus', fadeOut );
 
 		$title.add( $content ).on( 'blur.focus', maybeFadeIn );
